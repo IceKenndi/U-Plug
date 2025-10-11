@@ -1,0 +1,160 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #f4f4f4;
+  color: #333;
+}
+
+.navbar {
+  background: #233511;
+  color: white;
+  font-weight: bold;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.navbar-center {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.nav-links a {
+  color: #e7eaf0;
+  background: transparent;
+  border-radius: 5px;
+  padding: 0.4rem 1rem;
+  margin: 0 0.2rem;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background 0.3s, color 0.3s;
+}
+
+.nav-links a.active,
+.nav-links a:hover {
+  background: #e7eaf0;
+  color: #233511;
+}
+
+.icons {
+  margin-left: 1rem;
+}
+
+main {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tab {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: #e0e0e0;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  color: black;  
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.tab.active {
+  background: #233511;
+  color: white;
+}
+
+.news-section {
+  display: none;
+}
+
+.news-section:not(.hidden) {
+  display: block;
+}
+
+.news-section h2 {
+  margin-bottom: 1rem;
+  color: #233511;
+}
+
+.news-card {
+  background: #e9f0fa;
+  border-left: 4px solid #233511;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 5px;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .nav-links {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.confirm-card {
+  background: #fff8f8;
+  border: 2px solid #a80000;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  color: #333;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.confirm-card p {
+  margin-bottom: 0.8rem;
+  font-weight: bold;
+}
+
+.confirm-btn {
+  background: #a80000;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+.cancel-btn {
+  background: #e0e0e0;
+  color: black;
+  text-decoration: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: bold;
+}
