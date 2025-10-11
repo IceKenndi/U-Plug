@@ -22,7 +22,7 @@ if (isset($_SESSION['user_id'])){
     $facultyPosts = [];
     $officialPosts = [];
 
-    $sql = "SELECT * FROM posts ORDER BY create_date DESC";
+    $sql = "SELECT * FROM posts ORDER BY COALESCE(edited_at, create_date) DESC";
     $result = $conn->query($sql);
 
     while ($post = $result->fetch_assoc()) {
@@ -74,7 +74,7 @@ if (isset($_SESSION['user_id'])){
     $facultyPosts = [];
     $officialPosts = [];
 
-    $sql = "SELECT * FROM posts ORDER BY create_date DESC";
+    $sql = "SELECT * FROM posts ORDER BY COALESCE(edited_at, create_date) DESC";
     $result = $conn->query($sql);
 
     while ($post = $result->fetch_assoc()) {
@@ -97,7 +97,7 @@ if (isset($_SESSION['user_id'])){
       $stmt->close();
       
       $post['authorName'] = $authorName;
-      $post['authorRole'] = strpos($authorId, 'STU-') === 0 ? 'student' : 'faculty';
+      $post['authorRole'] = strpos($authorId, 'STU-') === 0 ? 'Student' : 'Faculty';
       $post['authorDept'] = $authorDept;
 
       if ($post['post_type'] === 'official'){
@@ -118,6 +118,20 @@ if (isset($_SESSION['user_id'])){
   header("Location: index.php");
 }
 
+//tab
+
+$activeTab = $_GET['tab'] ?? 'official';
+
+//tab
+if (isset($_GET['edit'])) {
+  $editId = $_GET['edit'];
+  foreach (array_merge($studentPosts, $facultyPosts) as $post) {
+    if ($post['post_id'] == $editId && $post['author_id'] === $_SESSION['user_id']) {
+      $activeTab = 'department';
+      break;
+    }
+  }
+}
 ?>
 
 <!DOCTYPE html>
@@ -175,31 +189,146 @@ if (isset($_SESSION['user_id'])){
     <section class="news-feed">
       <h2>News</h2>
       <div class="tabs">
-        <button class="tab active" onclick="showSection('official')">Official News</button>
-        <button class="tab" onclick="showSection('department')"><?= htmlspecialchars($user['department'])?> News</button>
+        <a href="news.php?tab=official" class="tab <?= $activeTab === 'official' ? 'active' : '' ?>">Official News</a>
+        <a href="news.php?tab=department" class="tab <?= $activeTab === 'department' ? 'active' : '' ?>"><?= htmlspecialchars($user['department']) ?> News</a>
       </div>
-      <div id="official" class="news-section">
+      <div id="official" class="news-section <?= $activeTab === 'official' ? '' : 'hidden' ?>">
         <?php foreach ($officialPosts as $post): ?>
-          <div class="news-card">
+          <div class="news-card" data-post-id="<?= $post['post_id'] ?>">
+            <?php if (isset($_GET['edit']) && $_GET['edit'] == $post['post_id'] && $post['author_id'] === $_SESSION['user_id']): ?>
+        <!-- Editable form -->
+        <form action="/assets/server/edit-post.php" method="POST">
+          <input type="hidden" name="tab" value="official">
+          <input type="hidden" name="post_id" value="<?= $post['post_id'] ?>">
+          <label>Title:</label><br>
+          <input type="text" name="title" value="<?= htmlspecialchars($post['title']) ?>"><br><br>
+          <label>Content:</label><br>
+          <textarea name="content"><?= htmlspecialchars($post['content']) ?></textarea><br><br>
+          <input type="submit" value="Save">
+          <a href="news.php">Cancel</a>
+        </form>
+
+        <!-- Delete form -->
+              <?php if (isset($_GET['delete']) && $_GET['delete'] == $post['post_id'] && $post['author_id'] === $_SESSION['user_id']): ?>
+                <div class="confirm-card">
+                  <p>Are you sure you want to delete this post?</p>
+                  <form action="/assets/server/delete-post.php" method="POST" style="display:inline;">
+                    <input type="hidden" name="post_id" value="<?= $post['post_id'] ?>">
+                    <input type="hidden" name="tab" value="<?= $activeTab ?>">
+                    <input type="submit" value="Confirm" class="confirm-btn">
+                  </form>
+                  <a href="news.php?tab=<?= $activeTab ?>" class="cancel-btn">Cancel</a>
+                </div>
+              <?php endif; ?>
+        <!-- Delete form -->
+
+          <?php else: ?>
+        <!-- Regular display -->
             <strong><?= htmlspecialchars($post['title']) ?></strong><br>
-            <?= htmlspecialchars($post['content']) ?><br>
-            <em>Posted by <?= htmlspecialchars($post['authorName']) ?> (<?= htmlspecialchars($post['authorRole'])?>)</em>
+              <p><?= htmlspecialchars($post['content']) ?></p>
+              <em><?= htmlspecialchars($post['authorName']) ?> (<?= htmlspecialchars($post['authorRole']) ?> - <?= htmlspecialchars($post['author_department']) ?>)</em><br>
+              <em>Posted: <?= date("F j, Y - h:i A", strtotime($post['create_date'])) ?></em><br>
+              <?php if (!empty($post['edited_at'])): ?>
+              <em>Edited: <?= date("F j, Y - h:i A", strtotime($post['edited_at'])) ?></em><br>
+              <?php endif; ?>
+
+              <?php if ($post['author_id'] === $_SESSION['user_id']): ?>
+                <form method="GET" action="news.php" style="margin-top: 0.5rem;">
+                  <input type="hidden" name="edit" value="<?= $post['post_id'] ?>">
+                  <input type="submit" value="Edit">
+                </form>
+              <?php endif; ?>
+              <!-- Delete form -->
+              <?php if (
+                isset($_GET['delete']) &&
+                $_GET['delete'] == $post['post_id'] &&
+                $post['author_id'] === $_SESSION['user_id']
+              ): ?>
+                <!-- Confirmation Card -->
+                <div class="confirm-card">
+                  <p>Are you sure you want to delete this post?</p>
+                  <form action="/assets/server/delete-post.php" method="POST" style="display:inline;">
+                    <input type="hidden" name="post_id" value="<?= $post['post_id'] ?>">
+                    <input type="hidden" name="tab" value="<?= $activeTab ?>">
+                    <input type="submit" value="Confirm" class="confirm-btn">
+                  </form>
+                  <a href="news.php?tab=<?= $activeTab ?>" class="cancel-btn">Cancel</a>
+                </div>
+              <?php else: ?>
+                <!-- Delete Trigger Button -->
+                <?php if ($post['author_id'] === $_SESSION['user_id']): ?>
+                  <form method="GET" action="news.php" style="margin-top: 0.5rem;">
+                    <input type="hidden" name="delete" value="<?= $post['post_id'] ?>">
+                    <input type="hidden" name="tab" value="<?= $activeTab ?>">
+                    <input type="submit" value="Delete" class="delete-btn">
+                  </form>
+                <?php endif; ?>
+              <?php endif; ?>
+              <!-- Delete form -->
+            <?php endif; ?>
           </div>
         <?php endforeach; ?>
       </div>
-      <div id="department" class="news-section hidden">
-        <?php foreach ($studentPosts as $post): ?>
-          <div class="news-card">
+      <div id="department" class="news-section <?= $activeTab === 'department' ? '' : 'hidden' ?>">
+        <?php foreach (array_merge($studentPosts, $facultyPosts) as $post): ?>
+          <div class="news-card" data-post-id="<?= $post['post_id'] ?>">
+            <?php if (isset($_GET['edit']) && $_GET['edit'] == $post['post_id'] && $post['author_id'] === $_SESSION['user_id']): ?>
+        <!-- Editable form -->
+        <form action="/assets/server/edit-post.php" method="POST">
+          <input type="hidden" name="tab" value="department">
+          <input type="hidden" name="post_id" value="<?= $post['post_id'] ?>">
+          <label>Title:</label><br>
+          <input type="text" name="title" value="<?= htmlspecialchars($post['title']) ?>"><br><br>
+          <label>Content:</label><br>
+          <textarea name="content"><?= htmlspecialchars($post['content']) ?></textarea><br><br>
+          <input type="submit" value="Save">
+          <a href="news.php">Cancel</a>
+        </form>
+          <?php else: ?>
+
+        <!-- Regular display -->
             <strong><?= htmlspecialchars($post['title']) ?></strong><br>
-            <?= htmlspecialchars($post['content']) ?><br>
-            <em>Posted by <?= htmlspecialchars($post['authorName']) ?> (Student)</em>
-          </div>
-        <?php endforeach; ?>
-        <?php foreach ($facultyPosts as $post): ?>
-          <div class="news-card">
-            <strong><?= htmlspecialchars($post['title']) ?></strong><br>
-            <?= htmlspecialchars($post['content']) ?><br>
-            <em>Posted by <?= htmlspecialchars($post['authorName']) ?> (Faculty)</em>
+              <p><?= htmlspecialchars($post['content']) ?></p>
+              <em><?= htmlspecialchars($post['authorName']) ?> (<?= htmlspecialchars($post['authorRole']) ?>)</em><br>
+              <em>Posted: <?= date("F j, Y - h:i A", strtotime($post['create_date'])) ?></em><br>
+              <?php if (!empty($post['edited_at'])): ?>
+              <em>Edited: <?= date("F j, Y - h:i A", strtotime($post['edited_at'])) ?></em><br>
+              <?php endif; ?>
+
+              <?php if ($post['author_id'] === $_SESSION['user_id']): ?>
+                <form method="GET" action="news.php" style="margin-top: 0.5rem;">
+                  <input type="hidden" name="edit" value="<?= $post['post_id'] ?>">
+                  <input type="submit" value="Edit">
+                </form>
+              <?php endif; ?>
+              <!-- Delete form -->
+              <?php if (
+                isset($_GET['delete']) &&
+                $_GET['delete'] == $post['post_id'] &&
+                $post['author_id'] === $_SESSION['user_id']
+              ): ?>
+                <!-- Confirmation Card -->
+                <div class="confirm-card">
+                  <p>Are you sure you want to delete this post?</p>
+                  <form action="/assets/server/delete-post.php" method="POST" style="display:inline;">
+                    <input type="hidden" name="post_id" value="<?= $post['post_id'] ?>">
+                    <input type="hidden" name="tab" value="<?= $activeTab ?>">
+                    <input type="submit" value="Confirm" class="confirm-btn">
+                  </form>
+                  <a href="news.php?tab=<?= $activeTab ?>" class="cancel-btn">Cancel</a>
+                </div>
+              <?php else: ?>
+                <!-- Delete Trigger Button -->
+                <?php if ($post['author_id'] === $_SESSION['user_id']): ?>
+                  <form method="GET" action="news.php" style="margin-top: 0.5rem;">
+                    <input type="hidden" name="delete" value="<?= $post['post_id'] ?>">
+                    <input type="hidden" name="tab" value="<?= $activeTab ?>">
+                    <input type="submit" value="Delete" class="delete-btn">
+                  </form>
+                <?php endif; ?>
+              <?php endif; ?>
+              <!-- Delete form -->
+            <?php endif; ?>
           </div>
         <?php endforeach; ?>
       </div>
