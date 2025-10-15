@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set('Asia/Manila');
+
 $db_name = 'db_uplug';
 $host = 'localhost';
 $username = 'root';

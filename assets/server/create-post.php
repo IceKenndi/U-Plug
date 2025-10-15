@@ -31,8 +31,13 @@ if ($_SERVER['REQUEST_METHOD'] === "POST"){
     $stmt->bind_param("sssss", $title, $content, $authorID, $post_type, $department);
     $stmt->execute();
 
-    header("Location: /../news.php");
-    exit();
+    if ($post_type === 'personal'){
+        header("Location: /../profile.php");
+        exit();
+    } else {
+        header("Location: /../news.php");
+        exit();
+    }
 
 }
 

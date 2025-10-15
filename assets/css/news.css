@@ -2,12 +2,24 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Arial', sans-serif;
 }
 
 body {
-  background: #f4f4f4;
-  color: #333;
+  background: #f7f9fc;
+  color: #1a1a1a;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+}
+
+
+.logo {
+  font-weight: bold;
+  font-size: 1.5rem;
+  margin-right: auto;  /* This ensures the logo is pushed to the leftmost side */
 }
 
 .navbar {
@@ -18,24 +30,14 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  margin: 0;
 }
 
 .navbar-center {
   display: flex;
   align-items: center;
   gap: 2rem;
-}
-
-.logo {
-  font-weight: bold;
-  font-size: 1.5rem;
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
 }
 
 .nav-links a {
@@ -46,7 +48,7 @@ body {
   margin: 0 0.2rem;
   font-weight: bold;
   text-decoration: none;
-  transition: background 0.3s, color 0.3s;
+  transition: background 0.4s cubic-bezier(0.4,0,0.2,1), color 0.4s cubic-bezier(0.4,0,0.2,1);
 }
 
 .nav-links a.active,
@@ -54,6 +56,7 @@ body {
   background: #e7eaf0;
   color: #233511;
 }
+
 
 .icons {
   margin-left: 1rem;
@@ -157,4 +160,93 @@ main {
   padding: 0.4rem 0.8rem;
   border-radius: 6px;
   font-weight: bold;
+}
+
+/* Post Pop-up */
+.modal {
+  display: none; 
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(3px);
+  z-index: 9999;
+}
+
+.modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+  border: 2px solid #233511;
+  position: relative;
+}
+
+
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 1.5rem;
+  color: #333;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+/* Post Form CSS */
+
+.post-form h3 {
+  margin-bottom: 1rem;
+  color: #233511;
+  font-size: 1.2rem;
+}
+
+.post-form label {
+  display: block;
+  margin-top: 0.5rem;
+  font-weight: bold;
+}
+
+.post-form input[type="text"],
+.post-form textarea {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 2px solid #233511;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.post-form input[type="submit"],
+button[type="submit"] {
+  background-color: #233511;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.post-form input[type="submit"]:hover,
+button[type="submit"]:hover {
+  background-color: #1a2a0d;
 }

@@ -11,6 +11,7 @@ $postId = $_POST['post_id'];
 $title = $_POST['title'];
 $content = $_POST['content'];
 $currentUserId = $_SESSION['user_id'];
+$editedAt = date("Y-m-d H:i:s");
 
 // Verify ownership
 $stmt = $conn->prepare("SELECT author_id FROM posts WHERE post_id = ?");
@@ -26,8 +27,8 @@ if ($authorId !== $currentUserId) {
 }
 
 // Update post
-$stmt = $conn->prepare("UPDATE posts SET title = ?, content = ? WHERE post_id = ?");
-$stmt->bind_param("ssi", $title, $content, $postId);
+$stmt = $conn->prepare("UPDATE posts SET title = ?, content = ?, edited_at = ? WHERE post_id = ?");
+$stmt->bind_param("sssi", $title, $content, $editedAt, $postId);
 $stmt->execute();
 $stmt->close();
 
