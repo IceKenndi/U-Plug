@@ -45,7 +45,7 @@ if (isset($_SESSION['user_id'])){
       $stmt->close();
       
       $post['authorName'] = $authorName;
-      $post['authorRole'] = strpos($authorId, 'STU-') === 0 ? 'student' : 'faculty';
+      $post['authorRole'] = strpos($authorId, 'STU-') === 0 ? 'Student' : 'Faculty';
       $post['authorDept'] = $authorDept;
 
       if ($post['post_type'] === 'official'){
@@ -142,12 +142,36 @@ if (isset($_GET['edit'])) {
   <link rel="stylesheet" href="/assets/css/news.css">
 </head>
 <body>
+
+<!-- Floating tab for posts -->
+ <div id="newPostModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <h3 id="modalTitle">Create New Post</h3>
+    <form method="POST" action="/assets/server/create-post.php" autocomplete="off" class="post-form">
+      <label for="wallSelect">Choose Wall to Post On:</label>
+      <select id="wallSelect" name="post_type" required>
+        <option value="official">📢 Official News</option>
+        <option value="department">🏛️ <?= htmlspecialchars($user['department']) ?> News</option>
+      </select>
+
+      <label for="post_title">Title:</label>
+      <textarea id="title" name="title" rows="1" required></textarea>
+
+      <label for="post_content">Content:</label>
+      <textarea id="content" name="content" rows="4" required></textarea>
+
+      <button type="submit" name="submit_post">Post</button>
+    </form>
+  </div>
+</div>
+
 <nav class="navbar">
   <div class="navbar-center">
     <div class="logo">U-Plug</div>
     <div class="nav-links">
       <a href="home.php">Home</a>
-      <a href="news.php">News</a>
+      <a href="news.php" class="active">News</a>
       <a href="map.php">Map</a>
       <a href="messaging.php">Messages</a>
       <a href="profile.php">Profile</a>
@@ -155,45 +179,17 @@ if (isset($_GET['edit'])) {
     </div>
   </div>
 </nav>
+
   <main>
     <section class="news-feed">
-      <form action="/assets/server/create-post.php" method="POST">
-        <h2>Create official post</h2>
-
-        <input type="hidden" name="post_type" value="official">
-        <label for="title">Input title: </label>
-        <input type="text" name="title">
-        <br>
-        <label for="content">Content: </label>
-        <input type="text" name="content">
-        <br>
-        <input type="submit" value="post">
-
-      </form>
-
-      <form action="/assets/server/create-post.php" method="POST">
-        <h2>Create department post</h2>
-
-        <input type="hidden" name="post_type" value="department">
-        <label for="title">Input title: </label>
-        <input type="text" name="title">
-        <br>
-        <label for="content">Content: </label>
-        <input type="text" name="content">
-        <br>
-        <input type="submit" value="post">
-
-      </form>
-    </section>
-
-    <section class="news-feed">
-      <h2>News</h2>
+      <h2>📰 News</h2>
       <div class="tabs">
+        <button class="tab" onclick="openModal()">➕ Create Post</button>
         <a href="news.php?tab=official" class="tab <?= $activeTab === 'official' ? 'active' : '' ?>">Official News</a>
         <a href="news.php?tab=department" class="tab <?= $activeTab === 'department' ? 'active' : '' ?>"><?= htmlspecialchars($user['department']) ?> News</a>
       </div>
       <div id="official" class="news-section <?= $activeTab === 'official' ? '' : 'hidden' ?>">
-        <?php foreach ($officialPosts as $post): ?>
+      <?php foreach ($officialPosts as $post): ?>
           <div class="news-card" data-post-id="<?= $post['post_id'] ?>">
             <?php if (isset($_GET['edit']) && $_GET['edit'] == $post['post_id'] && $post['author_id'] === $_SESSION['user_id']): ?>
         <!-- Editable form -->
@@ -227,10 +223,11 @@ if (isset($_GET['edit'])) {
             <strong><?= htmlspecialchars($post['title']) ?></strong><br>
               <p><?= htmlspecialchars($post['content']) ?></p>
               <em><?= htmlspecialchars($post['authorName']) ?> (<?= htmlspecialchars($post['authorRole']) ?> - <?= htmlspecialchars($post['author_department']) ?>)</em><br>
-              <em>Posted: <?= date("F j, Y - h:i A", strtotime($post['create_date'])) ?></em><br>
-              <?php if (!empty($post['edited_at'])): ?>
-              <em>Edited: <?= date("F j, Y - h:i A", strtotime($post['edited_at'])) ?></em><br>
-              <?php endif; ?>
+              <em title="Originally posted: <?= date("F j, Y - h:i A", strtotime($post['create_date']))?>">
+                <?= (empty($post['edited_at']))
+                ? date("F j, Y - h:i A", strtotime($post['create_date']))
+                : "Edited at: " . date("F j, Y - h:i A", strtotime($post['edited_at']))?>
+              </em>
 
               <?php if ($post['author_id'] === $_SESSION['user_id']): ?>
                 <form method="GET" action="news.php" style="margin-top: 0.5rem;">
@@ -290,10 +287,11 @@ if (isset($_GET['edit'])) {
             <strong><?= htmlspecialchars($post['title']) ?></strong><br>
               <p><?= htmlspecialchars($post['content']) ?></p>
               <em><?= htmlspecialchars($post['authorName']) ?> (<?= htmlspecialchars($post['authorRole']) ?>)</em><br>
-              <em>Posted: <?= date("F j, Y - h:i A", strtotime($post['create_date'])) ?></em><br>
-              <?php if (!empty($post['edited_at'])): ?>
-              <em>Edited: <?= date("F j, Y - h:i A", strtotime($post['edited_at'])) ?></em><br>
-              <?php endif; ?>
+              <em title="Originally posted: <?= date("F j, Y - h:i A", strtotime($post['create_date']))?>">
+                <?= (empty($post['edited_at']))
+                ? date("F j, Y - h:i A", strtotime($post['create_date']))
+                : "Edited at: " . date("F j, Y - h:i A", strtotime($post['edited_at']))?>
+              </em>
 
               <?php if ($post['author_id'] === $_SESSION['user_id']): ?>
                 <form method="GET" action="news.php" style="margin-top: 0.5rem;">
@@ -338,6 +336,10 @@ if (isset($_GET['edit'])) {
   <!---FOR JS--->
 
   <script>
+    const modal = document.getElementById("newPostModal");
+    const titleField = document.getElementById("post_title");
+    const contentField = document.getElementById("post_content");
+    
     function showSection(section) {
       document.getElementById('official').classList.add('hidden');
       document.getElementById('department').classList.add('hidden');
@@ -350,6 +352,25 @@ if (isset($_GET['edit'])) {
         document.querySelectorAll('.tab')[1].classList.add('active');
       }
     }
+
+    // Open Post Tab
+    function openModal() {
+      modal.classList.add("show");
+      document.body.style.overflow = "hidden";
+    }
+    // Close Post Tab
+    function closeModal() {
+      modal.classList.remove("show");
+      document.body.style.overflow = "auto";
+    }
+
+    //event listener
+    document.addEventListener("keydown", function (event) {
+      const modal = document.getElementById("newPostModal");
+      if (event.key === "Escape" && modal.classList.contains("show")) {
+        closeModal();
+      }
+    });
   </script>
 </body>
 </html>

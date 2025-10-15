@@ -27,7 +27,7 @@ if (isset($_SESSION['user_id'])){
       <div class="nav-links">
         <a href="home.php">Home</a>
         <a href="news.php">News</a>
-        <a href="map.php">Map</a>
+        <a href="map.php" class="active">Map</a>
         <a href="messaging.php">Messages</a>
         <a href="profile.php">Profile</a>
         <a href="/assets/server/logout-process.php">Logout</a>

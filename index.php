@@ -18,7 +18,7 @@ if(isset($_SESSION['user_id'])){
 <head>
   <meta charset="UTF-8">
   <title>U-Plug Login / Sign Up</title>
-  <link rel="stylesheet" href="/assets/css/auth-glass.css">
+  <link rel="stylesheet" href="/assets/css/index.css">
   <script src="https://unpkg.com/just-validate@latest/dist/just-validate.production.min.js" defer></script>
   <script src="/assets/javascript/validation.js" defer></script>
 
