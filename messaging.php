@@ -46,6 +46,7 @@ $stmt->close();
   <meta charset="UTF-8">
   <title>U-Plug Messaging</title>
   <link rel="stylesheet" href="/assets/css/messaging.css">
+  <link rel="icon" href="/assets/images/client/UplugLogo.png" type="image/png">
 </head>
 <body>
   <nav class="navbar">
@@ -133,7 +134,7 @@ $stmt->close();
         });
       });
           
-      function loadMessages() {
+      function loadMessages(chatId) {
         if (!currentChatWith) return;
 
         fetch(`/assets/server/load-messages.php?chat_with=${currentChatWith}`)
@@ -180,7 +181,7 @@ $stmt->close();
             loadMessages();
           }
           refreshContactList();
-        }, 1000); // every 1 second
+        }, 500); // every 1 second
 
 
 
