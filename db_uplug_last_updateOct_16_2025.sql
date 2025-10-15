@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 15, 2025 at 06:14 PM
+-- Generation Time: Oct 16, 2025 at 12:35 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -44,8 +44,7 @@ CREATE TABLE `faculty_users` (
 
 INSERT INTO `faculty_users` (`seq_id`, `faculty_id`, `full_name`, `first_name`, `last_name`, `email`, `password_hash`, `department`) VALUES
 (1, 'FAC-1-CCJE', 'Kenneth Dela Cruz', 'Kenneth', 'Dela Cruz', 'kenneth@faculty.com', '$2y$10$MexlMIxssmmOp1DAFmpq2Oh0iCP5ZYgG7XOf2ETB4DP/8e0Pjg88W', 'CCJE'),
-(2, 'FAC-2-COL', 'Mark Bandong', 'Mark', 'Bandong', 'bandonglaw@faculty.com', '$2y$10$ayumS9bK78qtIWlgyW92ruq2PDEGMRLGfvMdvS9UDYVWfvxslLgUu', 'COL'),
-(3, 'FAC-3-CITE', 'Jan Julien Narvasa', 'Jan Julien', 'Narvasa', 'jjnarvasa@faculty.com', '$2y$10$l4BWXtBorpSVBdq9dRJswubEmjSEuzKSHjCs/DHvIbH8if7QyxhqG', 'CITE');
+(2, 'FAC-2-COL', 'Mark Bandong', 'Mark', 'Bandong', 'bandonglaw@faculty.com', '$2y$10$ayumS9bK78qtIWlgyW92ruq2PDEGMRLGfvMdvS9UDYVWfvxslLgUu', 'COL');
 
 -- --------------------------------------------------------
 
@@ -68,34 +67,8 @@ CREATE TABLE `messages` (
 --
 
 INSERT INTO `messages` (`message_id`, `sender_id`, `sender_type`, `receiver_id`, `receiver_type`, `content`, `sent_at`) VALUES
-(46, 'STU-4-CEA', 'student', 'STU-1-CITE', 'student', 'bangon nigga', '2025-10-15 20:49:13'),
-(47, 'STU-1-CITE', 'student', 'STU-4-CEA', 'student', 'angas nigger', '2025-10-15 20:49:45'),
-(48, 'STU-4-CEA', 'student', 'STU-1-CITE', 'student', 'yo', '2025-10-15 20:51:56'),
-(49, 'STU-4-CEA', 'student', 'STU-1-CITE', 'student', 'tite', '2025-10-15 20:52:48'),
-(50, 'STU-4-CEA', 'student', 'STU-1-CITE', 'student', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis condimentum fringilla velit, convallis ornare ipsum maximus vitae. Aliquam erat volutpat. Phasellus eleifend, metus ut porta volutpat, quam ligula tempor mi, et porta eros massa et elit. Nullam ut arcu finibus, egestas nibh nec, ornare mauris. Aenean ut lorem eros. Quisque ut erat vitae odio tempor faucibus vel vel ipsum. Donec magna justo, facilisis in mi in, tempus ultricies dui. Praesent eu sagittis velit. Nullam tristique lacus sit amet lectus euismod, a bibendum metus ullamcorper. Duis nec lobortis purus. Praesent eget feugiat nisl, eu volutpat quam. Fusce gravida egestas augue, quis.', '2025-10-15 20:53:45'),
-(51, 'STU-4-CEA', 'student', 'STU-1-CITE', 'student', 'test', '2025-10-15 21:05:45'),
-(52, 'FAC-3-CITE', 'faculty', 'STU-1-CITE', 'student', 'Wala tayong pasok bukas, next week na ang checking niyo. Also yung defense niyo is moved to October 32-36. yun lang thank you!', '2025-10-15 21:21:34'),
-(53, 'STU-1-CITE', 'student', 'FAC-3-CITE', 'faculty', 'Okay po sir, thank you!', '2025-10-15 21:22:02'),
-(54, 'FAC-3-CITE', 'faculty', 'STU-1-CITE', 'student', 'hello', '2025-10-15 21:55:05'),
-(55, 'FAC-3-CITE', 'faculty', 'STU-1-CITE', 'student', 'yo', '2025-10-15 21:55:30'),
-(56, 'STU-1-CITE', 'student', 'FAC-3-CITE', 'faculty', 'kakantutin kita', '2025-10-15 22:27:05'),
-(57, 'FAC-3-CITE', 'faculty', 'STU-1-CITE', 'student', 'chuchupa na yan', '2025-10-15 22:27:20'),
-(58, 'STU-1-CITE', 'student', 'FAC-3-CITE', 'faculty', 'yo', '2025-10-15 22:29:44'),
-(59, 'FAC-3-CITE', 'faculty', 'FAC-2-COL', 'faculty', 'tropa mark', '2025-10-15 22:30:42'),
-(60, 'FAC-2-COL', 'faculty', 'FAC-3-CITE', 'faculty', 'wsg jj', '2025-10-15 22:31:21'),
-(61, 'FAC-3-CITE', 'faculty', 'FAC-2-COL', 'faculty', 'You: tropa mark  October 15, 2025 - 10:30 PM', '2025-10-15 22:32:08'),
-(62, 'FAC-3-CITE', 'faculty', 'FAC-2-COL', 'faculty', 'You: tropa mark  October 15, 2025 - 10:30 PM', '2025-10-15 22:32:09'),
-(63, 'FAC-3-CITE', 'faculty', 'FAC-2-COL', 'faculty', 'You: tropa mark  October 15, 2025 - 10:30 PM', '2025-10-15 22:32:09'),
-(64, 'FAC-3-CITE', 'faculty', 'FAC-2-COL', 'faculty', 'You: tropa mark  October 15, 2025 - 10:30 PM', '2025-10-15 22:32:09'),
-(65, 'FAC-3-CITE', 'faculty', 'FAC-2-COL', 'faculty', 'You: tropa mark  October 15, 2025 - 10:30 PM', '2025-10-15 22:32:10'),
-(66, 'FAC-3-CITE', 'faculty', 'FAC-2-COL', 'faculty', 'You: tropa mark  October 15, 2025 - 10:30 PM', '2025-10-15 22:32:11'),
-(67, 'FAC-3-CITE', 'faculty', 'FAC-2-COL', 'faculty', 'You: tropa mark  October 15, 2025 - 10:30 PM', '2025-10-15 22:32:12'),
-(68, 'FAC-3-CITE', 'faculty', 'STU-1-CITE', 'student', 'check', '2025-10-15 23:30:26'),
-(69, 'FAC-3-CITE', 'faculty', 'FAC-2-COL', 'faculty', 'test', '2025-10-15 23:47:31'),
-(70, 'FAC-3-CITE', 'faculty', 'STU-4-CEA', 'student', 'working?', '2025-10-15 23:47:38'),
-(71, 'FAC-3-CITE', 'faculty', 'FAC-1-CCJE', 'faculty', 'request ni paul tumaas to sa preview', '2025-10-15 23:50:30'),
-(72, 'FAC-1-CCJE', 'faculty', 'FAC-3-CITE', 'faculty', 'olol', '2025-10-15 23:51:02'),
-(73, 'FAC-3-CITE', 'faculty', 'STU-3-CAHS', 'student', 'hi', '2025-10-16 00:01:27');
+(92, 'FAC-1-CCJE', 'faculty', 'STU-1-CITE', 'student', 'Hi! Messaging test.', '2025-10-16 06:33:39'),
+(93, 'STU-1-CITE', 'student', 'FAC-1-CCJE', 'faculty', 'Hello!', '2025-10-16 06:33:43');
 
 -- --------------------------------------------------------
 
@@ -207,7 +180,7 @@ ALTER TABLE `faculty_users`
 -- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `message_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
+  MODIFY `message_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=94;
 
 --
 -- AUTO_INCREMENT for table `posts`
