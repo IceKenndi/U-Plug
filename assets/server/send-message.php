@@ -1,6 +1,6 @@
 <?php
 session_start();
-    require __DIR__ . "/../config/dbconfig.php";
+require __DIR__ . "/../config/dbconfig.php";
 
 function getUserType($userId){
     if (strpos($userId, 'FAC-') === 0){
@@ -20,7 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     $senderType = getUserType($senderId);
     $receiverType = getUserType($receiverId);
 
-    $stmt = $conn->prepare("INSERT INTO messages (sender_id, sender_type, receiver_id, receiver_type, content) VALUES (?, ?, ?, ?, ?)");
+    // ✅ Insert with seen = 0 (unread)
+    $stmt = $conn->prepare("INSERT INTO messages (sender_id, sender_type, receiver_id, receiver_type, content, seen) VALUES (?, ?, ?, ?, ?, 0)");
     $stmt->bind_param("sssss", $senderId, $senderType, $receiverId, $receiverType, $content);
     $stmt->execute();
     $stmt->close();

@@ -206,3 +206,58 @@ body {
       text-align: center;
       font-family: 'Segoe UI', sans-serif;
     }
+
+    .form-group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.form-group select,
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.form-group .just-validate-error-label {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #d0413a;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  padding-right: 40px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.eye-icon {
+  width: 20px;
+  height: 20px;
+  filter: invert(100%);
+}
+
+
+
+.eye-icon {
+  transition: transform 0.3s ease;
+}
+
+.toggle-password:hover .eye-icon {
+  transform: scale(1.2);
+}
+

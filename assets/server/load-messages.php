@@ -4,6 +4,13 @@ require __DIR__ . "/../config/dbconfig.php";
 
 $active_user = $_SESSION['user_id'];
 $chatWith = $_GET['chat_with'];
+$markSeen = $conn->prepare("
+  UPDATE messages SET seen = 1
+  WHERE sender_id = ? AND receiver_id = ? AND seen = 0
+");
+$markSeen->bind_param("ss", $chatWith, $active_user);
+$markSeen->execute();
+$markSeen->close();
 
 function getUserDetails($conn, $userId){
   if (strpos($userId, 'STU-') === 0){

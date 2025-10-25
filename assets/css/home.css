@@ -22,22 +22,33 @@ body {
   margin-right: auto;  /* This ensures the logo is pushed to the leftmost side */
 }
 
+/* NEW NAVBAR */
+
 .navbar {
-  background: #233511;
-  color: white;
-  font-weight: bold;
-  padding: 1rem 2rem;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  width: 100%;
-  margin: 0;
+  padding: 1rem 2rem;
+  background-color: #233511;
+  color: white;
+  position: relative;
+  flex-wrap: nowrap;
 }
 
-.navbar-center {
+.nav-left {
   display: flex;
   align-items: center;
   gap: 2rem;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1rem;
 }
 
 .nav-links a {
@@ -56,6 +67,45 @@ body {
   background: #e7eaf0;
   color: #233511;
 }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+}
+
+.search-wrapper {
+  position: relative;
+  width: 500px;
+}
+
+#searchInput {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 1.05rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+#searchInput:focus {
+  outline: none;
+  border-color: #88b04b;
+  box-shadow: 0 0 0 2px rgba(136, 176, 75, 0.3);
+}
+
+#searchResults {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  background-color: #2e4520;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  padding: 8px;
+}
+
+/* NEW NAVBAR */
 
 
 .icons {
@@ -263,3 +313,142 @@ body {
 body::-webkit-scrollbar {
   display: none; 
 }
+
+/* TOAST NOTIF */
+
+.toast {
+  position: relative;
+  background: linear-gradient(180deg, #314618 0%, #233511 100%);
+  color: #fff;
+  padding: 0.75rem 1.2rem;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+  font-size: 0.95rem;
+  animation: slideFadeIn 0.5s ease forwards;
+  margin-bottom: 12px;
+  min-width: 280px;
+}
+
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end; /* ✅ Ensures toasts align right */
+}
+
+
+.toast .dismiss-toast {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.toast-message {
+  padding-right: 1.5rem;
+}
+
+.toast-timestamp {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+@keyframes slideFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(0);
+  }
+}
+
+@keyframes slideFade {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+}
+
+.toast.slideFade {
+  animation: slideFade 0.6s ease forwards;
+}
+
+/* SEARCH PROFILE RESULT */
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background-color: #2e4520;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.profile-card:hover {
+  background-color: #324724;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.profile-card img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name {
+  font-weight: bold;
+  font-size: 1rem;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.profile-role,
+.profile-department {
+  font-weight: bold;
+  font-size: 0.95rem;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-left: auto;
+  text-align: right;
+}
+
+
+/* SEARCH PROFILE RESULT */
+

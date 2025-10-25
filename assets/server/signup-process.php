@@ -1,125 +1,176 @@
 <?php
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+session_start();
+
+header('Content-Type: application/json');
+
 require __DIR__ . "/../config/dbconfig.php";
 
-if (empty($_POST['role'])){
-    die("Role is required (e.g. Student, Faculty)");
+if (empty($_POST['signup_role'])){
+    echo json_encode(['success' => false, 'message' => 'Role is required (e.g. Student, Faculty)']);
+    exit;
 }
 
 if (empty($_POST['department'])){
-    die("Department is required");
+    echo json_encode(['success' => false, 'message' => 'Department is required']);
+    exit;
 }
 
 if (empty($_POST['first_name'])){
-    die("First name is required");
+    echo json_encode(['success' => false, 'message' => 'First name is required']);
+    exit;
 }
 
 if (empty($_POST['last_name'])){
-    die("Last name is required");
+    echo json_encode(['success' => false, 'message' => 'Last name is required']);
+    exit;
 }
 
-if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)){
-    die("Valid email is required");
+if (!filter_var($_POST['signup_email'], FILTER_VALIDATE_EMAIL)){
+    echo json_encode(['success' => false, 'message' => 'Valid email is required']);
+    exit;
 }
 
-if (strlen($_POST['password']) < 8){
-    die("Password must be atleast 8 characters long");
+if (strlen($_POST['signup_password']) < 8){
+    echo json_encode(['success' => false, 'message' => 'Password must be at least 8 characters long']);
+    exit;
 }
 
-if (!preg_match("/[a-z]/i", $_POST['password'])){
-    die("Password must atleast contain one letter");
+if (!preg_match("/[a-z]/i", $_POST['signup_password'])){
+    echo json_encode(['success' => false, 'message' => 'Password must at least contain one letter']);
+    exit;
 }
 
-if (!preg_match("/[0-9]/", $_POST['password'])){
-    die("Password must atleast contain one number");
+if (!preg_match("/[0-9]/", $_POST['signup_password'])){
+    echo json_encode(['success' => false, 'message' => 'Password must at least containt one number']);
+    exit;
 }
 
-if ($_POST['password'] !== $_POST['password_confirmation']){
-    die("Passwords must match");
+if ($_POST['signup_password'] !== $_POST['password_confirmation']){
+    echo json_encode(['success' => false, 'message' => 'Passwords must match']);
+    exit;
 }
 
-if ($_POST['role'] === 'student') {
-    $password_hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    
-    $sql = "INSERT INTO student_users (first_name, last_name, email, password_hash, department) VALUES (?, ?, ?, ?, ?)";
+// Prepare user data
+$role = $_POST['signup_role'];
+$password_hash = password_hash($_POST['signup_password'], PASSWORD_DEFAULT);
+$first_name = $_POST['first_name'];
+$last_name = $_POST['last_name'];
+$email = $_POST['signup_email'];
+$department = $_POST['department'];
 
-    $stmt = $conn->stmt_init();
+if ($role === 'student') {
+    $table = 'student_users';
+    $id_prefix = 'STU';
+} elseif ($role === 'faculty') {
+    $table = 'faculty_users';
+    $id_prefix = 'FAC';
+} else {
+    echo json_encode(['success' => false, 'message' => 'Invalid role']);
+    exit;
+}
 
-    if(!$stmt->prepare($sql)) {
-        die("SQL Error: " . $conn->error);
+// Insert user
+$sql = "INSERT INTO $table (first_name, last_name, email, password_hash, department) VALUES (?, ?, ?, ?, ?)";
+$stmt = $conn->prepare($sql);
+
+if (!$stmt) {
+    echo json_encode(['success' => false, 'message' => 'SQL Error: ' . $conn->error]);
+    exit;
+}
+
+$stmt->bind_param("sssss", $first_name, $last_name, $email, $password_hash, $department);
+
+try {
+    $stmt->execute();
+} catch (mysqli_sql_exception $e) {
+    if ($e->getCode() === 1062) {
+        echo json_encode(['success' => false, 'message' => 'Email is already taken']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'SQL Error: ' . $e->getMessage()]);
     }
-
-    $stmt->bind_param("sssss", $_POST['first_name'], $_POST['last_name'], $_POST['email'], $password_hash, $_POST['department']);
-
-    try {
-        $stmt->execute();
-    } catch (mysqli_sql_exception $e){
-        if ($e->getCode === 1062) {
-            die("email is already taken");
-        } else {
-            die("SQL Error: " . $e->getMessage() . " " . $e->getCode());
-        }
-    }
-
-    $seq_id = $conn->insert_id;
-
-    $student_id = 'STU-' . $seq_id . "-" . $_POST['department'];
-    $full_name = $_POST['first_name'] . " " . $_POST['last_name'];
-
-    $update_sql = "UPDATE student_users SET student_id = ?, full_name = ? WHERE seq_id = ?";
-
-    if (!$update_stmt = $conn->prepare($update_sql)){
-        die("SQL error: " . $conn->error);
-    }
-
-    $update_stmt->bind_param("ssi", $student_id, $full_name, $seq_id);
-    $update_stmt->execute();
+    exit;
 }
 
-else if ($_POST['role'] === 'faculty') {
-    $password_hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    
-    $sql = "INSERT INTO faculty_users (first_name, last_name, email, password_hash, department) VALUES (?, ?, ?, ?, ?)";
+// Generate ID and update
+$seq_id = $conn->insert_id;
+$generated_id = $id_prefix . '-' . $seq_id . '-' . $department;
+$full_name = $first_name . ' ' . $last_name;
 
-    $stmt = $conn->stmt_init();
+$column_id = ($role === 'student') ? 'student_id' : 'faculty_id';
+$update_sql = "UPDATE $table SET $column_id = ?, full_name = ? WHERE seq_id = ?";
+$update_stmt = $conn->prepare($update_sql);
 
-    if(!$stmt->prepare($sql)) {
-        die("SQL Error: " . $conn->error);
-    }
-
-    $stmt->bind_param("sssss", $_POST['first_name'], $_POST['last_name'], $_POST['email'], $password_hash, $_POST['department']);
-
-    try {
-        $stmt->execute();
-    } catch (mysqli_sql_exception $e){
-        if ($e->getCode === 1062) {
-            die("email is already taken");
-        } else {
-            die("SQL Error: " . $e->getMessage() . " " . $e->getCode());
-        }
-    }
-
-    $seq_id = $conn->insert_id;
-
-    $faculty_id = 'FAC-' . $seq_id . "-" . $_POST['department'];
-    $full_name = $_POST['first_name'] . " " . $_POST['last_name'];
-
-    $update_sql = "UPDATE faculty_users SET faculty_id = ?, full_name = ? WHERE seq_id = ?";
-    
-    if (!$update_stmt = $conn->prepare($update_sql)){
-        die("SQL error: " . $conn->error);
-    }
-
-    $update_stmt->bind_param("ssi", $faculty_id, $full_name, $seq_id);
-    $update_stmt->execute();
+if (!$update_stmt) {
+    echo json_encode(['success' => false, 'message' => 'SQL Error: ' . $conn->error]);
+    exit;
 }
 
-else {
-    die();
+$update_stmt->bind_param("ssi", $generated_id, $full_name, $seq_id);
+$update_stmt->execute();
+
+// Step 1: Generate OTP and store in session
+$otp = rand(100000, 999999);
+$_SESSION['otp_code'] = $otp;
+$_SESSION['otp_expiry'] = time() + 600; // 10 minutes
+$_SESSION['pending_email'] = $email;
+$_SESSION['pending_role'] = $role;
+$_SESSION['pending_table'] = $table;
+$_SESSION['pending_seq_id'] = $seq_id;
+
+// Send OTP via email
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require __DIR__ . '/../../vendor/autoload.php'; // Adjust path if needed
+
+$mail = new PHPMailer(true);
+try {
+    $mail->isSMTP();
+    $mail->Host = 'smtp.gmail.com';
+    $mail->SMTPAuth = true;
+    $mail->Username = 'uplug.noreply@gmail.com';         // 🔐 Your Gmail
+    $mail->Password = 'iphk qwnj feso feqd';           // 🔐 App password from Google
+    $mail->SMTPSecure = 'tls';
+    $mail->Port = 587;
+
+    $mail->setFrom('uplug.noreply@gmail.com', 'U-Plug OTP');
+    $mail->addAddress($email);
+    $mail->isHTML(true);
+    $mail->Subject = 'Your U-Plug OTP Code';
+    $mail->Body = "
+        <div style='font-family: Arial, sans-serif; color: #333;'>
+            <p>Dear User,</p>
+            <p>Thank you for signing in to <strong>U-Plug</strong>. To complete your login, please verify your account using the One-Time Password (OTP) provided below.</p>
+            <p>This OTP is valid for <strong>10 minutes</strong> and should not be shared with anyone.</p>
+            <p>If you did not attempt to log in, please disregard this message.</p>
+            <br>
+            <p style='font-size: 18px;'>Your OTP code is:</p>
+            <p style='font-size: 24px; font-weight: bold; color: #007BFF;'>$otp</p>
+            <br><hr>
+            <p style='font-size: 12px; color: #777;'>© " . date('Y') . " U-Plug. All rights reserved.</p>
+        </div>
+    ";
+
+    $mail->send();
+} catch (Exception $e) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Failed to send OTP. Please try again later.'
+    ]);
+    exit;
 }
 
-header("Location: /../index.php");
-
+// Redirect to OTP verification page
+echo json_encode([
+    'success' => true,
+    'redirect' => '/assets/server/verify-otp.php'
+]);
+exit;
 
 
 ?>

@@ -1,14 +1,73 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const loginValidation = new JustValidate("#login-form");
+
+    // function showError(message, formSelector = "#login-form") {
+    //   console.log("Error target:", formSelector);
+    //   const form = document.querySelector(formSelector);
+    //   if (!form) return;
+
+    //   const existing = form.querySelector('.error-box');
+    //   if (existing) existing.remove();
+
+    //   const errorBox = document.createElement('div');
+    //   errorBox.className = 'error-box';
+    //   errorBox.textContent = message;
+    //   form.appendChild(errorBox);
+    // }
+
+    function showError(message, formSelector = "#login-form") {
+      const form = document.querySelector(formSelector);
+      if (!form) return;
+
+      const existing = form.querySelector('.error-box');
+      if (existing) existing.remove();
+
+      const errorBox = document.createElement('div');
+      errorBox.className = 'error-box';
+
+      // Check if message is OTP-related
+      if (message.includes("verify your account via OTP")) {
+        const span = document.createElement('span');
+        span.textContent = message + " ";
+
+        const link = document.createElement('span');
+        link.textContent = "Verify now";
+        link.style.fontWeight = "bold";
+        link.style.color = "inherit";
+        link.style.textDecoration = "underline";
+        link.style.cursor = "pointer";
+        link.onclick = () => {
+          window.location.href = "/assets/server/verify-otp.php";
+        };
+      
+        errorBox.appendChild(span);
+        errorBox.appendChild(link);
+      } else {
+        errorBox.textContent = message;
+      }
+
+      form.appendChild(errorBox);
+    }
+
+    
+    const loginValidation = new JustValidate("#login-form", {
+      errorLabelStyle: {
+        color: "#d0413a",
+        fontSize: "0.8rem",
+        marginTop: "4px",
+        display: "block"
+      },
+      focusInvalidField: true,
+      lockForm: true
+    });
 
     loginValidation
-        .addField("#role", [
+        .addField("#login_role", [
             {
                 rule: 'required',
                 errorMessage: "Please select your account type"
             }
         ])
-        .addField("#email", [
+        .addField("#login_email", [
             {
                 rule: 'required',
                 errorMessage: "Email is required"
@@ -18,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 errorMessage: "Invalid email"
             }
         ])
-        .addField("#password", [
+        .addField("#login-password", [
             {
                 rule: 'required',
                 errorMessage: "Password is required"
@@ -89,23 +148,132 @@ document.addEventListener("DOMContentLoaded", () => {
               window.location.href = data.redirect || "home.php";
             }, 2000);
             } else {
-                showError(data.message);
+                showError(data.message, "#login-form");
             }
         })
         .catch(() => {
-          showError("Something went wrong, please try again.");
+          showError("Something went wrong, please try again.", "#login-form");
         });
       });
 
-    function showError(message) {
-      const existing = document.querySelector('.error-box');
-      if (existing) existing.remove();
+    console.log("Signup validator initialized")
+    const signupValidation = new JustValidate("#signup-form", {
+      errorLabelStyle: {
+        color: "#d0413a",
+        fontSize: "0.8rem",
+        marginTop: "4px",
+        display: "block"
+      },
+      focusInvalidField: true,
+      lockForm: true
+    });
 
-      const errorBox = document.createElement('div');
-      errorBox.className = 'error-box';
-      errorBox.textContent = message;
-      document.querySelector('#login-form').appendChild(errorBox);
-    }
+    signupValidation
+        .addField("#signup_role", [
+          {
+            rule: 'required',
+            errorMessage: 'Please select your account type'
+          }
+        ])
+        .addField("#department", [
+          {
+            rule: 'required',
+            errorMessage: 'Please select your department'
+          }
+        ])
+        .addField("#first_name", [
+          {
+            rule: 'required',
+            errorMessage: 'First name is required'
+          },
+          {
+            rule: 'maxLength',
+            value: 30,
+            errorMessage:'First name must be less than 30 characters'
+          }
+        ])
+        .addField("#last_name", [
+          {
+            rule: 'required',
+            errorMessage: 'Last name is required'
+          },
+          {
+            rule: 'maxLength',
+            value: 30,
+            errorMessage:'Last name must be less than 30 characters'
+          }
+        ])
+        .addField("#signup_email", [
+          {
+            rule: 'required',
+            errorMessage: 'Email is required'
+          },
+          {
+            rule: 'email',
+            errorMessage:'Invalid email'
+          }
+        ])
+        .addField("#signup-password", [
+          {
+              rule: 'required',
+              errorMessage: "Password is required"
+          },
+          {
+              rule: 'minLength',
+              value: 8,
+              errorMessage: "Password is at least 8 characters"
+          },
+          {
+              validator: (value) => {
+                  const hasUpperCase = /[A-Z]/.test(value);
+                  return hasUpperCase;
+              },
+              errorMessage: "Password has at least one upper case character"
+          },
+          {
+              validator: (value) => {
+                  const hasLowerCase = /[a-z]/.test(value);
+                  return hasLowerCase;
+              },
+              errorMessage: "Password has at least one lower case character"
+          },
+          {
+              validator: (value) => {
+                  const hasNumber = /[0-9]/.test(value);
+                  return hasNumber;
+              },
+              errorMessage: "Password has at least one number"
+          }
+        ])
+        .addField("#password_confirmation", [
+          {
+            validator: (value, fields) => {
+              return value === fields["#signup-password"].elem.value;
+            },
+            errorMessage: "Passwords do not match"
+          }
+        ])
+      
+        .onSuccess((event) => {
+          const formData = new FormData(event.target);
+                
+          return fetch('assets/server/signup-process.php', {
+            method: 'POST',
+            body: formData
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success){
+              window.location.href = data.redirect || "index.php";
+            } else {
+              showError(data.message, "#signup-form");
+            }
+          })
+          .catch((err) => {
+            console.error("Signup fetch error:", err);
+            showError("Something went wrong, please try again.", "#signup-form");
+          });
+        });
 });
 
 
