@@ -21,7 +21,7 @@ if(isset($_SESSION['user_id'])){
   <link rel="stylesheet" href="/assets/css/index.css">
   <script src="https://unpkg.com/just-validate@latest/dist/just-validate.production.min.js" defer></script>
   <script src="/assets/javascript/validation.js" defer></script>
-
+  <link rel="icon" href="/assets/images/client/UplugLogo.png" type="image/png">
 </head>
 <body>
 
@@ -43,13 +43,20 @@ if(isset($_SESSION['user_id'])){
       <h2>Login</h2>
 
       <form action="/assets/server/login-process.php" class="auth-form" id="login-form" autocomplete="off" method="POST" novalidate>
-        <select name="role" id="role" required>
-          <option value="" disabled selected>Select Account Type</option>
-          <option value="student">Student</option>
-          <option value="faculty">Faculty</option>
-        </select>
-        <input type="text" name="email" id="email" placeholder="Email" required>
-        <input type="password" name="password" id="password" placeholder="Password" required>
+        <div class="form-group">
+          <select name="login_role" id="login_role" required>
+              <option value="" disabled selected>Select Account Type</option>
+              <option value="student">Student</option>
+              <option value="faculty">Faculty</option>
+            </select>
+        </div>
+        <div class="form-group"><input type="text" name="login_email" id="login_email" placeholder="Email" required></div>
+        <div class="form-group password-wrapper">
+          <input type="password" name="login_password" id="login-password" placeholder="Password" required>
+          <span class="toggle-password" data-target="login-password">
+            <img src="/assets/images/client/hidden_password.png" alt="Show Password" class="eye-icon">
+          </span>
+        </div>
         <button type="submit" class="login-btn">Login</button>
       </form>
 
@@ -65,28 +72,40 @@ if(isset($_SESSION['user_id'])){
       <h2>Sign Up</h2>
 
       <form action="/assets/server/signup-process.php" class="auth-form" id="signup-form" autocomplete="off" method="POST" novalidate>
-        <select name="role" required>
-          <option value="" disabled selected>Select Account Type</option>
-          <option value="student">Student</option>
-          <option value="faculty">Faculty</option>
-        </select>
-        <select name="department" required>
-          <option value="" disabled selected>Select Department</option>
-          <option value="SHS">SHS - Senior Highschool</option>
-          <option value="CITE">CITE - College of Information Technology Education</option>
-          <option value="CCJE">CCJE - College of Criminal Justice Education</option>
-          <option value="CAHS">CAHS - College of Allied Health Sciences</option>
-          <option value="CAS">CAS - College of Arts and Sciences</option>
-          <option value="CEA">CEA - College of Engineering and Architecture</option>
-          <option value="CELA">CELA - College of Education and Liberal Arts</option>
-          <option value="CMA">CMA - College of Management and Accountancy</option>
-          <option value="COL">COL - College of Law</option>
-        </select>
-        <input type="text" name="first_name" placeholder="First Name" required>
-        <input type="text" name="last_name" placeholder="Last Name" required>
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <input type="password" name="password_confirmation" placeholder="Confirm Password" required>
+        <div class="form-group">
+          <select name="signup_role" id="signup_role" required>
+            <option value="" disabled selected>Select Account Type</option>
+            <option value="student">Student</option>
+            <option value="faculty">Faculty</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <select name="department" id="department" required>
+            <option value="" disabled selected>Select Department</option>
+            <option value="SHS">SHS - Senior Highschool</option>
+            <option value="CITE">CITE - College of Information Technology Education</option>
+            <option value="CCJE">CCJE - College of Criminal Justice Education</option>
+            <option value="CAHS">CAHS - College of Allied Health Sciences</option>
+            <option value="CAS">CAS - College of Arts and Sciences</option>
+            <option value="CEA">CEA - College of Engineering and Architecture</option>
+            <option value="CELA">CELA - College of Education and Liberal Arts</option>
+            <option value="CMA">CMA - College of Management and Accountancy</option>
+            <option value="COL">COL - College of Law</option>
+          </select>
+        </div>
+        <div class="form-group"><input type="text" name="first_name" placeholder="First Name" id="first_name" required></div>
+        <div class="form-group"><input type="text" name="last_name" placeholder="Last Name" id="last_name" required></div>
+        <div class="form-group"><input type="email" name="signup_email" placeholder="Email" id="signup_email" required></div>
+        <div class="form-group password-wrapper"><input type="password" name="signup_password" placeholder="Password" id="signup-password" required>
+        <span class="toggle-password" data-target="signup-password">
+          <img src="/assets/images/client/hidden_password.png" alt="Show Password" class="eye-icon">
+        </span>
+        </div>
+        <div class="form-group password-wrapper"><input type="password" name="password_confirmation" placeholder="Confirm Password" id="password_confirmation" required>
+        <span class="toggle-password" data-target="password_confirmation">
+          <img src="/assets/images/client/hidden_password.png" alt="Show Password" class="eye-icon">
+        </span>
+        </div>
         <button type="submit" class="signup-btn">Sign Up</button>
       </form>
 
@@ -111,6 +130,21 @@ if(isset($_SESSION['user_id'])){
     document.getElementById('login-card').style.display = 'flex';
     document.getElementById('signup-card').style.display = 'none';
     };
+
+    document.querySelectorAll('.toggle-password').forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        const targetId = toggle.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+        const icon = toggle.querySelector('img');
+        const isHidden = input.type === 'password';
+      
+        input.type = isHidden ? 'text' : 'password';
+        icon.src = isHidden 
+          ? '/assets/images/client/show_password.png' 
+          : '/assets/images/client/hidden_password.png';
+        icon.alt = isHidden ? 'Hide Password' : 'Show Password';
+      });
+    });
   </script>
 </body>
 </html>
