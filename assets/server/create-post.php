@@ -41,10 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
   $stmt->execute();
   $stmt->close();
 
-  $_SESSION['toast'] = [
-    'message' => 'Post uploaded successfully!',
-    'type' => 'success'
-  ];
+  $_SESSION['toastPosts'][] = [
+  'post_id' => uniqid('upload_', true),
+  'toast_message' => 'Post uploaded successfully!',
+  'create_date' => date('Y-m-d H:i:s'),
+  'edited_at' => null
+];
 
   header("Location: " . ($post_type === 'personal' ? "/../profile.php" : "/../news.php"));
   exit();

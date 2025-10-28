@@ -60,10 +60,16 @@ if(isset($_SESSION['user_id'])){
         <button type="submit" class="login-btn">Login</button>
       </form>
 
+      
+      <div class="switch-link">
+        <span>Forgot your password?</span>
+        <button id="show-forgot" type="button">Reset</button>
+      </div>
       <div class="switch-link">
         <span>Don't have an account?</span>
         <button id="show-signup" type="button">Sign Up</button>
       </div>
+
 
     </div>
 
@@ -71,6 +77,7 @@ if(isset($_SESSION['user_id'])){
 
       <h2>Sign Up</h2>
 
+      <div class="center-wrapper">
       <form action="/assets/server/signup-process.php" class="auth-form" id="signup-form" autocomplete="off" method="POST" novalidate>
         <div class="form-group">
           <select name="signup_role" id="signup_role" required>
@@ -95,8 +102,16 @@ if(isset($_SESSION['user_id'])){
         </div>
         <div class="form-group"><input type="text" name="first_name" placeholder="First Name" id="first_name" required></div>
         <div class="form-group"><input type="text" name="last_name" placeholder="Last Name" id="last_name" required></div>
-        <div class="form-group"><input type="email" name="signup_email" placeholder="Email" id="signup_email" required></div>
+        <!-- <div class="form-group"><input type="email" name="signup_email" placeholder="Email" id="signup_email" required></div> -->
+        <div class="form-group">
+          <div class="email-wrapper">
+            <input type="text" id="signup_email" name="signup_email" placeholder="Your Phinmaed email" autocomplete="off" required>
+            <div id="email-preview" class="email-preview"></div>
+            <span class="email-domain">@phinmaed.com</span>
+          </div>
+        </div>
         <div class="form-group password-wrapper"><input type="password" name="signup_password" placeholder="Password" id="signup-password" required>
+        <!-- <small class="email-hint">Passwords must atleast contain (1 Uppercase letter, 1 Lowercase letter, 1 Number, Must be at least 8 characters)</small> -->
         <span class="toggle-password" data-target="signup-password">
           <img src="/assets/images/client/hidden_password.png" alt="Show Password" class="eye-icon">
         </span>
@@ -108,6 +123,7 @@ if(isset($_SESSION['user_id'])){
         </div>
         <button type="submit" class="signup-btn">Sign Up</button>
       </form>
+      </div>
 
       <div class="switch-link">
         <span>Already have an account?</span>
@@ -116,19 +132,56 @@ if(isset($_SESSION['user_id'])){
 
     </div>
 
+    <div class="glass-card" id="forgot-card" style="display:none;">
+        <h2>Reset Password</h2>
+        <form action="/assets/server/request-reset.php" class="auth-form" id="forgot-form" autocomplete="off" method="POST" novalidate>
+          <div class="form-group">
+            <select name="forgot_role" id="forgot_role" required>
+              <option value="" disabled selected>Select Account Type</option>
+              <option value="student">Student</option>
+              <option value="faculty">Faculty</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <input type="email" name="forgot_email" id="forgot_email" placeholder="Your Phinmaed email" required>
+          </div>
+          <button type="submit" class="signup-btn">Send Reset Link</button>
+        </form>
+
+        <div class="switch-link">
+          <span>Remembered your password?</span>
+          <button id="back-to-login" type="button">Login</button>
+        </div>
+      </div>
+
   </div>
 
   <!---FOR JS--->
   
   <script>
-    // Toggle between login and signup
-    document.getElementById('show-signup').onclick = function() {
+    // Toggle between login, signup, and forgot password
+    document.getElementById('show-signup').onclick = function () {
       document.getElementById('login-card').style.display = 'none';
       document.getElementById('signup-card').style.display = 'flex';
+      document.getElementById('forgot-card').style.display = 'none';
     };
-    document.getElementById('show-login').onclick = function() {
-    document.getElementById('login-card').style.display = 'flex';
-    document.getElementById('signup-card').style.display = 'none';
+
+    document.getElementById('show-login').onclick = function () {
+      document.getElementById('login-card').style.display = 'flex';
+      document.getElementById('signup-card').style.display = 'none';
+      document.getElementById('forgot-card').style.display = 'none';
+    };
+
+    document.getElementById('show-forgot').onclick = function () {
+      document.getElementById('login-card').style.display = 'none';
+      document.getElementById('signup-card').style.display = 'none';
+      document.getElementById('forgot-card').style.display = 'flex';
+    };
+
+    document.getElementById('back-to-login').onclick = function () {
+      document.getElementById('login-card').style.display = 'flex';
+      document.getElementById('signup-card').style.display = 'none';
+      document.getElementById('forgot-card').style.display = 'none';
     };
 
     document.querySelectorAll('.toggle-password').forEach(toggle => {

@@ -220,7 +220,7 @@ body {
   background: #f0f0f0;
 }
 
-.profile-card {
+.profile-card-preview {
   background: white;
   padding: 1rem;
   border-radius: 8px;
@@ -228,7 +228,7 @@ body {
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.profile-card img {
+.profile-card-preview img {
   width: 80px;
   height: 80px;
   border-radius: 50%;

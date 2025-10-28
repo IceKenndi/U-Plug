@@ -1,5 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+  const emailInput = document.getElementById("signup_email");
+  const emailPreview = document.getElementById("email-preview");
+
+  emailInput.addEventListener("input", () => {
+    const username = emailInput.value.trim();
+    if (username) {
+      emailPreview.textContent = username.toLowerCase() + "@phinmaed.com";
+    } else {
+      emailPreview.textContent = "";
+    }
+  });
+
     // function showError(message, formSelector = "#login-form") {
     //   console.log("Error target:", formSelector);
     //   const form = document.querySelector(formSelector);
@@ -87,13 +99,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 value: 8,
                 errorMessage: "Password is at least 8 characters"
             },
-            // {
-            //     validator: (value) => {
-            //         const hasUpperCase = /[A-Z]/.test(value);
-            //         return hasUpperCase;
-            //     },
-            //     errorMessage: "Password has at least one upper case character"
-            // },
+            {
+                validator: (value) => {
+                    const hasUpperCase = /[A-Z]/.test(value);
+                    return hasUpperCase;
+                },
+                errorMessage: "Password has at least one upper case character"
+            },
             {
                 validator: (value) => {
                     const hasLowerCase = /[a-z]/.test(value);
@@ -206,11 +218,15 @@ document.addEventListener("DOMContentLoaded", () => {
         .addField("#signup_email", [
           {
             rule: 'required',
-            errorMessage: 'Email is required'
+            errorMessage: 'Username is required'
           },
           {
-            rule: 'email',
-            errorMessage:'Invalid email'
+            rule: 'function',
+            validator: (value) => {
+              const fullEmail = value.trim().toLowerCase() + '@phinmaed.com';
+              return /^[a-z0-9._%+-]+@phinmaed\.com$/.test(fullEmail);
+            },
+            errorMessage: 'Invalid username format (e.g. fnmi.lastname.up)'
           }
         ])
         .addField("#signup-password", [
@@ -256,6 +272,8 @@ document.addEventListener("DOMContentLoaded", () => {
       
         .onSuccess((event) => {
           const formData = new FormData(event.target);
+          const username = formData.get('signup_email').trim().toLowerCase();
+          formData.set('signup_email', username + '@phinmaed.com');
                 
           return fetch('assets/server/signup-process.php', {
             method: 'POST',
@@ -274,6 +292,61 @@ document.addEventListener("DOMContentLoaded", () => {
             showError("Something went wrong, please try again.", "#signup-form");
           });
         });
+
+  console.log("Forgot password validator initialized");
+  const forgotValidation = new JustValidate("#forgot-form", {
+    errorLabelStyle: {
+      color: "#d0413a",
+      fontSize: "0.8rem",
+      marginTop: "4px",
+      display: "block"
+    },
+    focusInvalidField: true,
+    lockForm: true
+  });
+
+  forgotValidation
+    .addField("#forgot_role", [
+      {
+        rule: 'required',
+        errorMessage: "Please select your account type"
+      }
+    ])
+    .addField("#forgot_email", [
+      {
+        rule: 'required',
+        errorMessage: "Email is required"
+      },
+      {
+        rule: 'email',
+        errorMessage: "Invalid email format"
+      },
+      {
+        rule: 'function',
+        validator: (value) => {
+          return value.trim().toLowerCase().endsWith('@phinmaed.com');
+        },
+        errorMessage: "Only @phinmaed.com emails are allowed"
+      }
+    ])
+    .onSuccess((event) => {
+      const formData = new FormData(event.target);
+
+      return fetch('/assets/server/request-reset.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.text())
+      .then(response => {
+        // Replace form with server response (HTML confirmation screen)
+        const form = document.getElementById("forgot-form");
+        form.innerHTML = response;
+      })
+      .catch((err) => {
+        console.error("Forgot password fetch error:", err);
+        showError("Something went wrong, please try again.", "#forgot-form");
+      });
+    });
 });
 
 

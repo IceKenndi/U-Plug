@@ -24,10 +24,10 @@ $active_user = $_SESSION['user_id'];
 $preselectedChat = $_SESSION['active_chat'] ?? null;
 $users = [];
 
-$contactSql = "SELECT u.id, u.full_name, u.role, u.profile_picture, m.content, m.sent_at, m.sender_id
-               FROM (SELECT student_id AS id, full_name, 'Student' AS role, profile_picture FROM student_users
+$contactSql = "SELECT u.id, u.full_name, u.role, u.profile_picture, u.department, m.content, m.sent_at, m.sender_id
+               FROM (SELECT student_id AS id, full_name, 'Student' AS role, profile_picture, department FROM student_users
                      UNION
-                     SELECT faculty_id AS id, full_name, 'Faculty' AS role, profile_picture FROM faculty_users)
+                     SELECT faculty_id AS id, full_name, 'Faculty' AS role, profile_picture, department FROM faculty_users)
                AS u
                LEFT JOIN (SELECT sender_id, receiver_id, content, sent_at
                           FROM messages
@@ -143,7 +143,7 @@ while ($row = $result->fetch_assoc()) {
                 <img src="/<?= htmlspecialchars($user['profile_picture']) ?>" alt="Profile Picture" class="profile-pic">
               </div>
               <div class="contact-info">
-                <div class="contact-name"><?= htmlspecialchars($user['full_name']) .  " - (" . htmlspecialchars($user['role']). ")"?></div>
+                <div class="contact-name"><?= htmlspecialchars($user['full_name']) . " - " . htmlspecialchars($user['department']) . " " . htmlspecialchars($user['role'])  ?></div>
                 <div class="last-message"><?= htmlspecialchars($preview) ?></div>
               </div>
             </button>

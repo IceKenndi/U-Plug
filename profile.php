@@ -1,6 +1,14 @@
 <?php
 session_start();
 
+$toastPosts = $toastPosts ?? [];
+
+if (!empty($_SESSION['toastPosts'])) {
+  $toastPosts = array_merge($_SESSION['toastPosts'], $toastPosts);
+  unset($_SESSION['toastPosts']);
+}
+
+
 require __DIR__ . "/assets/config/dbconfig.php";
 
 $session_id = $_SESSION['user_id'] ?? null;
@@ -12,10 +20,14 @@ $stmt->bind_param("s", $currentUser);
 $stmt->execute();
 $result = $stmt->get_result();
 
-$toastPosts = [];
+$pushToasts = [];
 while ($row = $result->fetch_assoc()) {
-  $toastPosts[] = $row;
+  $pushToasts[] = $row;
 }
+
+// Merge push toasts with any session-based toasts
+$toastPosts = array_merge($toastPosts, $pushToasts);
+
 
 // PUSH NOTIF
 
@@ -25,6 +37,7 @@ if (strpos($session_id, 'FAC-') === 0) {
   $user = $result->fetch_assoc();
   $department_code = $user['department'];
   $role = 'Faculty';
+  $reset_role = 'faculty';
   $pfpDir = 'faculty-profiles';
 } else if (strpos($session_id, 'STU-') === 0) {
   $sql = "SELECT * FROM student_users WHERE student_id = '$session_id'";
@@ -32,6 +45,7 @@ if (strpos($session_id, 'FAC-') === 0) {
   $user = $result->fetch_assoc();
   $department_code = $user['department'];
   $role = 'Student';
+  $reset_role = 'student';
   $pfpDir = 'student-profiles';
 }
 ?>
@@ -98,19 +112,21 @@ while ($post = $result->fetch_assoc()){
 
 <div id="toastContainer" class="toast-container">
   <?php foreach ($toastPosts as $post): ?>
-    <div class="toast" data-post-id="<?= $post['post_id'] ?>">
+    <div class="toast <?= $post['type'] ?? 'info' ?>" data-post-id="<?= $post['post_id'] ?>">
       <span><?= htmlspecialchars($post['toast_message']) ?></span><br>
-      <small style="opacity: 0.8;">
-        <?= empty($post['edited_at'])
-          ? date("F j, Y - h:i A", strtotime($post['create_date']))
-          : "Edited at: " . date("F j, Y - h:i A", strtotime($post['edited_at'])) ?>
-      </small>
+
+      <?php if (!empty($post['create_date']) || !empty($post['edited_at'])): ?>
+        <small class="toast-timestamp" style="opacity: 0.8;">
+          <?= !empty($post['edited_at'])
+            ? 'Edited at: ' . date("F j, Y - h:i A", strtotime($post['edited_at']))
+            : 'Posted: ' . date("F j, Y - h:i A", strtotime($post['create_date'])) ?>
+        </small>
+      <?php endif; ?>
+      
       <button class="dismiss-toast">X</button>
     </div>
   <?php endforeach; ?>
 </div>
-
-
 
 <div id="newPostModal" class="modal">
   <div class="modal-content">
@@ -176,6 +192,16 @@ while ($post = $result->fetch_assoc()){
         <input type="hidden" name="role" value="<?= $role ?>">
         <button type="submit">Upload</button>
       </form>
+
+      <form method="POST" action="/assets/server/change-password-request.php" style="margin-top: 20px;">
+        <input type="hidden" name="user_id" value="<?= $session_id ?>">
+        <input type="hidden" name="reset_role" value="<?= $reset_role ?>">
+        <input type="hidden" name="email" value="<?= $user['email'] ?>">
+        <button type="submit" style="background-color: #007BFF; color: white; padding: 8px 16px; border: none; border-radius: 4px;">
+          🔒 Change Password
+        </button>
+      </form>
+
 
       <div class="profile-image-preview">
         <img id="preview-img" src="#" alt="Profile Preview" style="display: none;">
@@ -413,11 +439,10 @@ while ($post = $result->fetch_assoc()){
         });
       
         // Optional: allow clicking the toast itself to dismiss
-        document.querySelectorAll('.toast').forEach(toast => {
+        document.querySelectorAll('.toast[data-post-id]').forEach(toast => {
           toast.addEventListener('click', e => {
             if (!e.target.classList.contains('dismiss-toast')) {
               const postId = toast.dataset.postId;
-            
               fetch('assets/server/dismiss-toast.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -463,7 +488,5 @@ while ($post = $result->fetch_assoc()){
 
     <!-- SEARCH PROFILE -->
 </div>
-
-<div id="toastContainer" class="toast-container"></div>
 </body>
 </html>

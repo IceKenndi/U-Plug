@@ -33,8 +33,8 @@ $stmt->execute();
 $stmt->close();
 
 // Set toast
-$_SESSION['toast'] = [
-  'message' => 'Post deleted successfully!',
+$_SESSION['toastPosts'][] = [
+  'toast_message' => 'Post deleted successfully!',
   'type' => 'success',
   'link' => '' // or omit this key if no link
 ];

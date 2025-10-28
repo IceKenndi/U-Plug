@@ -49,16 +49,37 @@ function processToastQueue() {
 }
 
 // ✅ DOMContentLoaded: show session-based toast if present
-document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('toastContainer');
-  const message = container?.dataset.toast;
-  const type = container?.dataset.toastType || 'info';
-  const link = container?.dataset.toastLink || null;
+  const staticToasts = container?.querySelectorAll('.toast');
 
-  if (message) {
-    showToast(message, type, 'manual', link);
-  }
+  staticToasts?.forEach(toastEl => {
+    const postId = toastEl.dataset.postId || null;
+    const message = toastEl.querySelector('span')?.textContent?.trim();
+    const timestampEl = toastEl.querySelector('.toast-timestamp');
+    const timestampText = timestampEl?.textContent?.replace(/^(Posted: |Edited at: )/, '') || null;
+    let timestamp = null;
+    if (timestampText) {
+      const parsedDate = new Date(timestampText);
+      if (!isNaN(parsedDate.getTime())) {
+        timestamp = parsedDate.toISOString();
+      }
+    }
+    const wasEdited = timestampEl?.textContent?.startsWith('Edited at:') || false;
+
+    const type = toastEl.classList.contains('success') ? 'success'
+                : toastEl.classList.contains('error') ? 'error'
+                : toastEl.classList.contains('warning') ? 'warning'
+                : 'info';
+
+    if (message) {
+      toastEl.remove(); // Remove static toast
+      showToast(message, type, 'manual', null, postId, timestamp, wasEdited); // ✅ Re-queue for animation
+    }
+  });
 });
+
+
 
 function pollForToasts() {
   fetch('/assets/server/check-toast.php')

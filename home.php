@@ -206,7 +206,7 @@ while ($row = $result->fetch_assoc()) {
 
         <div class="profile-section">
           <h2>Profile</h2>
-          <div class="profile-card">
+          <div class="profile-card-preview">
             <img src="https://via.placeholder.com/80" alt="Profile">
             <h3>Kent Barbiran</h3>
             <nav class="profile-tabs">

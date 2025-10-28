@@ -35,6 +35,12 @@ if (!filter_var($_POST['signup_email'], FILTER_VALIDATE_EMAIL)){
     exit;
 }
 
+if (!preg_match('/@phinmaed\.com$/i', $_POST['signup_email'])) {
+    echo json_encode(['success' => false, 'message' => 'Only @phinmaed.com emails are allowed']);
+    exit;
+}
+
+
 if (strlen($_POST['signup_password']) < 8){
     echo json_encode(['success' => false, 'message' => 'Password must be at least 8 characters long']);
     exit;

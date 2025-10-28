@@ -8,12 +8,12 @@ $preselectedChat = $_SESSION['active_chat'] ?? null;
 echo '<div class="contact-list-header">Contacts</div>';
 
 $contactSql = "
-  SELECT u.id, u.full_name, u.role, u.profile_picture,
+  SELECT u.id, u.full_name, u.role, u.profile_picture, u.department,
          m.content, m.sent_at, m.sender_id
   FROM (
-    SELECT student_id AS id, full_name, 'Student' AS role, profile_picture FROM student_users
+    SELECT student_id AS id, full_name, 'Student' AS role, profile_picture, department FROM student_users
     UNION
-    SELECT faculty_id AS id, full_name, 'Faculty' AS role, profile_picture FROM faculty_users
+    SELECT faculty_id AS id, full_name, 'Faculty' AS role, profile_picture, department FROM faculty_users
   ) AS u
   LEFT JOIN (
     SELECT sender_id, receiver_id, content, sent_at
@@ -77,7 +77,7 @@ while ($row = $result->fetch_assoc()) {
                 <img src="/' . htmlspecialchars($pfp) . '" alt="Profile Picture" class="profile-pic">
               </div>
               <div class="contact-info">
-                <div class="contact-name">' . htmlspecialchars($row['full_name']) . ' - (' . htmlspecialchars($row['role']) . ')</div>
+                <div class="contact-name">' . htmlspecialchars($row['full_name']) . ' - ' . htmlspecialchars($row['department']) . ' ' . htmlspecialchars($row['role']) . '</div>
                 <div class="' . $previewClass . '">' . $previewText . '</div>
               </div>';
 
