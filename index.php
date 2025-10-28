@@ -48,6 +48,7 @@ if(isset($_SESSION['user_id'])){
               <option value="" disabled selected>Select Account Type</option>
               <option value="student">Student</option>
               <option value="faculty">Faculty</option>
+              <option value="admin">Admin</option>
             </select>
         </div>
         <div class="form-group"><input type="text" name="login_email" id="login_email" placeholder="Email" required></div>
@@ -140,6 +141,7 @@ if(isset($_SESSION['user_id'])){
               <option value="" disabled selected>Select Account Type</option>
               <option value="student">Student</option>
               <option value="faculty">Faculty</option>
+              <option value="admin">Admin</option>
             </select>
           </div>
           <div class="form-group">

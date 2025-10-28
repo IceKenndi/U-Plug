@@ -71,64 +71,242 @@ while ($row = $result->fetch_assoc()) {
       </div>
     </div>
   </nav>
+
   <main class="map-main">
-    <section class="map-controls">
-      <h2>Campus Map</h2>
-      <label for="building-select">Choose a building:</label>
-      <select id="building-select">
-        <option value="">-- Select a building --</option>
-        <option value="student-plaza">Student Plaza</option>
-        <option value="riverside-building">Riverside Building</option>
-        <option value="mba">MBA</option>
-        <option value="mba-hall">MBA Hall</option>
-        <option value="north-hall">North Hall</option>
-        <option value="gym">Gym</option>
-        <option value="chs">CHS</option>
-        <option value="basic-ed">Basic Ed</option>
-        <option value="ptc">PTC</option>
-        <option value="csdl-its">CSDL ITS</option>
-        <option value="op">OP</option>
-        <option value="fvr">FVR</option>
-        <option value="cma">CMA</option>
-        <option value="phinma-garden">Phinma Garden</option>
-        <option value="old-stage">Old Stage</option>
-        <option value="main-entrance-gate">Main Entrance Gate</option>
-      </select>
-    </section>
-    <section class="map-display">
-      <img src="campus-map.jpg" alt="Campus Map" id="campus-map" />
-      <!-- You can use a transparent overlay or highlight for selected building if desired -->
-      <div id="building-info" class="building-info"></div>
-    </section>
-  </main>
+  <section class="map-controls">
+    <h2>Campus Map</h2>
+    <label for="building-select">Choose a building:</label>
+    <select id="building-select">
+      <option value="">-- Select a building --</option>
+      <option value="student-plaza">Student Plaza</option>
+      <option value="riverside-building">Riverside Building</option>
+      <option value="mba">MBA</option>
+      <option value="north-hall">North Hall</option>
+      <option value="gym">Gym</option>
+      <option value="basic-ed">Basic Ed</option>
+      <option value="ptc">PTC</option>
+      <option value="csdl-its">CSDL ITS</option>
+      <option value="fvr">FVR</option>
+      <option value="cma">CMA</option>
+      <option value="phinma-garden">Phinma Garden</option>
+      <option value="main-entrance-gate">Main Entrance Gate</option>
+    </select>
+  </section>
+  <section class="map-display">
+    <div id="building-info" class="building-info">
+      <p>Select a building to view details and images.</p>
+      <div class="left-image"></div>
+      <div class="right-images"></div>
+    </div>
+  </section>
+</main>
 
+<!-- Modal for full-size image -->
+<div id="imageModal" class="modal">
+  <span class="close">&times;</span>
+  <img class="modal-content" id="modalImage">
+</div>
 
-  <!-- FOR JS --> 
-   
-  <script>
-    // Example: Show building info on selection
-    const buildingInfo = {
-      "student-plaza": "Student Plaza: Main student activity area.",
-      "riverside-building": "Riverside Building: Classrooms and offices.",
-      "mba": "MBA: Engineering building.",
-      "mba-hall": "MBA Hall: Lecture and event hall.",
-      "north-hall": "North Hall: Academic classrooms.",
-      "gym": "Gym: Sports and PE activities.",
-      "chs": "CHS: College of Health Sciences.",
-      "basic-ed": "Basic Ed: Basic Education Department.",
-      "ptc": "PTC: Professional Training Center.",
-      "csdl-its": "CSDL ITS: Computer Science and IT Services.",
-      "op": "OP: Office of the President.",
-      "fvr": "FVR: Faculty and admin offices.",
-      "cma": "CMA: College of Management and Accountancy.",
-      "phinma-garden": "Phinma Garden: Campus green space.",
-      "old-stage": "Old Stage: Outdoor event area.",
-      "main-entrance-gate": "Main Entrance Gate: Campus entry point."
-    };
-    document.getElementById('building-select').addEventListener('change', function() {
-      const val = this.value;
-      document.getElementById('building-info').textContent = buildingInfo[val] || '';
+<!-- FOR JS -->
+<script>
+const buildingData = {
+  "student-plaza": {
+    description: "Student Plaza: Main student activity area.",
+    images: [
+      "assets/images/buildings/sp.jpg",
+      "assets/images/buildings/sp1.jpg",
+      "assets/images/buildings/sp3.jpg"
+    ]
+  },
+  "riverside-building": {
+    description: "Riverside Building: Classrooms and offices.",
+    images: [
+      "assets/images/buildings/rs2.jpg",
+      "assets/images/buildings/rs1.jpg",
+      "assets/images/buildings/rs3.jpg"
+    ]
+  },
+  "mba": {
+    description: "MBA: Engineering building.",
+    images: [
+      "assets/images/buildings/mba.jpg",
+      "assets/images/buildings/mba1.jpg",
+      "assets/images/buildings/mba2.jpg"
+    ]
+  },
+  "north-hall": {
+    description: "North Hall: Academic classrooms.",
+    images: [
+      "assets/images/buildings/nh.jpg",
+      "assets/images/buildings/nh1.jpg",
+      "assets/images/buildings/nh2.jpg"
+    ]
+  },
+  "gym": {
+    description: "Gym: Sports and PE activities.",
+    images: [
+      "assets/images/buildings/gym.jpg",
+      "assets/images/buildings/gym1.jpg",
+      "assets/images/buildings/gym2.jpg"
+    ]
+  },
+  "basic-ed": {
+    description: "Basic Ed: Basic Education Department.",
+    images: [
+      "assets/images/buildings/BE.jpg",
+      "assets/images/buildings/BE1.jpg",
+      "assets/images/buildings/BE2.jpg"
+    ]
+  },
+  "ptc": {
+    description: "PTC: Professional Training Center.",
+    images: [
+      "assets/images/buildings/cite1.jpg",
+      "assets/images/buildings/cite2.jpg",
+      "assets/images/buildings/cite3.jpg"
+    ]
+  },
+  "csdl-its": {
+    description: "CSDL ITS: Computer Science and IT Services.",
+    images: [
+      "assets/images/buildings/csdl-its/image1.jpg",
+      "assets/images/buildings/csdl-its/image2.jpg",
+      "assets/images/buildings/csdl-its/image3.jpg"
+    ]
+  },
+  "fvr": {
+    description: "FVR: Faculty and admin offices.",
+    images: [
+      "assets/images/buildings/fvr.jpg",
+      "assets/images/buildings/fvr1.jpg",
+      "assets/images/buildings/fvr2.jpg"
+    ]
+  },
+  "cma": {
+    description: "CMA: College of Management and Accountancy.",
+    images: [
+      "assets/images/buildings/cmain.jpg",
+      "assets/images/buildings/cma.jpg",
+      "assets/images/buildings/cma2.jpg"
+    ]
+  },
+  "phinma-garden": {
+    description: "Phinma Garden: Campus green space.",
+    images: [
+      "assets/images/buildings/pg.jpg",
+      "assets/images/buildings/os.jpg",
+      "assets/images/buildings/os2.png"
+    ]
+  },
+  "main-entrance-gate": {
+    description: "Main Entrance Gate: Campus entry point.",
+    images: [
+      "assets/images/buildings/me1.jpg",
+      "assets/images/buildings/me2.jpg",
+      "assets/images/buildings/main-entrance-gate/image3.jpg"
+    ]
+  }
+};
+
+let currentImageIndex = 0;
+let currentBuildingKey = '';
+
+window.addEventListener('DOMContentLoaded', () => {
+  const infoDiv = document.getElementById('building-info');
+  infoDiv.innerHTML = '';
+
+  const campusImg = document.createElement('img');
+  campusImg.src = 'assets/images/buildings/sb.jpg'; 
+  campusImg.alt = 'Campus Overview';
+  campusImg.className = 'campus-full'; 
+
+  infoDiv.appendChild(campusImg);
+});
+
+document.getElementById('building-select').addEventListener('change', function () {
+  const val = this.value;
+  const infoDiv = document.getElementById('building-info');
+  infoDiv.innerHTML = '';
+
+  if (val && buildingData[val]) {
+    const data = buildingData[val];
+
+    const descPara = document.createElement('p');
+    descPara.textContent = data.description;
+    descPara.style.width = '100%';
+    descPara.style.textAlign = 'center';
+    descPara.style.marginBottom = '1rem';
+    infoDiv.appendChild(descPara);
+
+    const leftDiv = document.createElement('div');
+    leftDiv.className = 'left-image';
+    const rightDiv = document.createElement('div');
+    rightDiv.className = 'right-images';
+
+    data.images.forEach((imgSrc, index) => {
+      const img = document.createElement('img');
+      img.src = imgSrc;
+      img.alt = `${val} Image ${index + 1}`;
+      img.style.cursor = 'pointer';
+      img.onerror = () => {
+        img.src = 'assets/images/buildings/placeholder.jpg';
+      };
+
+      img.addEventListener('click', function () {
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        modal.style.display = 'block';
+        modalImg.src = this.src;
+        currentImageIndex = index;
+        currentBuildingKey = val;
+      });
+
+      if (index === 0) {
+        leftDiv.appendChild(img);
+      } else {
+        rightDiv.appendChild(img);
+      }
     });
+
+    infoDiv.appendChild(leftDiv);
+    infoDiv.appendChild(rightDiv);
+  } else {
+    const campusImg = document.createElement('img');
+    campusImg.src = 'assets/images/buildings/sb.jpg';
+    campusImg.alt = 'Campus Overview';
+    campusImg.className = 'campus-full';
+    infoDiv.appendChild(campusImg);
+  }
+});
+
+// Modal logic
+const modal = document.getElementById('imageModal');
+const closeBtn = document.getElementsByClassName('close')[0];
+
+closeBtn.onclick = () => modal.style.display = 'none';
+modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+
+document.addEventListener('keydown', function (event) {
+  if (modal.style.display !== 'block') return;
+
+  if (event.key === 'Escape') {
+    modal.style.display = 'none';
+  }
+
+  if (!buildingData[currentBuildingKey]) return;
+  const images = buildingData[currentBuildingKey].images;
+
+  if (event.key === 'ArrowLeft') {
+    currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+  } else if (event.key === 'ArrowRight') {
+    currentImageIndex = (currentImageIndex + 1) % images.length;
+  } else {
+    return;
+  }
+
+  document.getElementById('modalImage').src = images[currentImageIndex];
+});
+
 
     fetch('assets/server/load-toasts.php')
   .then(res => res.json())
