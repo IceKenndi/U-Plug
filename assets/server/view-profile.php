@@ -69,7 +69,39 @@ $posts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
       <h2>Viewing Profile</h2>
       <p><strong>Account Number:</strong><br> <?= htmlspecialchars($targetUserId) ?></p>
       <p><strong>Name:</strong><br> <?= htmlspecialchars($fullName) ?></p>
-      <p><strong>Department:</strong><br> <?= htmlspecialchars($department) ?></p>
+      <?php switch ($department) {
+            case "SHS":
+              $department_full = "Senior High School - (SHS)";
+              break;
+            case "CITE":
+              $department_full = "College of Information Technology Education - (CITE)";
+              break;
+            case "CCJE":
+              $department_full = "College of Criminal Justice Education - (CCJE)";
+              break;
+            case "CAHS":
+              $department_full = "College of Allied Health Sciences - (CAHS)";
+              break;
+            case "CAS":
+              $department_full = "College of Arts and Sciences - (CAS)";
+              break;
+            case "CEA":
+              $department_full = "College of Engineering and Architecture - (CEA)";
+              break;
+            case "CELA":
+              $department_full = "College of Education and Liberal Arts - (CELA)";
+              break;
+            case "CMA":
+              $department_full = "College of Management and Accountancy - (CMA)";
+              break;
+            case "COL":
+              $department_full = "College of Law - (COL)";
+              break;
+            default:
+              $department_full = "Unknown Department";
+              break;
+      }?>
+      <p><strong>Department:</strong><br> <?= htmlspecialchars($department_full) ?></p>
       <p><strong>Role:</strong><br> <?= strpos($targetUserId, 'FAC-') === 0 ? 'Faculty' : 'Student' ?></p>
       <form method="POST" action="/messaging.php">
         <input type="hidden" name="recipient_id" value="<?= htmlspecialchars($targetUserId) ?>">

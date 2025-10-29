@@ -3,10 +3,15 @@ session_start();
 require __DIR__ . '/../config/dbconfig.php';
 
 $role = $_POST['forgot_role'] ?? '';
-$email = $_POST['forgot_email'] ?? '';
+$email = strtolower(trim($_POST['forgot_email'] ?? ''));
 
 $table = $role . "_users";
 $id_column = $role . "_id";
+
+echo "Role: $role<br>";
+echo "Email: '$email'<br>";
+echo "Table: $table<br>";
+echo "ID Column: $id_column<br>";
 
 // ✅ Check if user exists
 $sql = "SELECT $id_column FROM $table WHERE email = ?";
@@ -17,6 +22,7 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
 if (!$user) {
+  error_log("Reset request failed for $email in $table");
   echo "<div class='error-box'>No account found with that email.</div>";
   exit();
 }

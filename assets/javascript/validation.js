@@ -2,15 +2,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const emailInput = document.getElementById("signup_email");
   const emailPreview = document.getElementById("email-preview");
+  
+  const updateEmailPreview = () => {
+    const email = emailInput.value.trim();
+    emailPreview.textContent = email ? `${email.toLowerCase()}@phinmaed.com` : "";
+  };
+  
+  emailInput.addEventListener("input", updateEmailPreview);
 
-  emailInput.addEventListener("input", () => {
-    const username = emailInput.value.trim();
-    if (username) {
-      emailPreview.textContent = username.toLowerCase() + "@phinmaed.com";
-    } else {
-      emailPreview.textContent = "";
-    }
-  });
 
     // function showError(message, formSelector = "#login-form") {
     //   console.log("Error target:", formSelector);
@@ -293,60 +292,67 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         });
 
-  console.log("Forgot password validator initialized");
-  const forgotValidation = new JustValidate("#forgot-form", {
-    errorLabelStyle: {
-      color: "#d0413a",
-      fontSize: "0.8rem",
-      marginTop: "4px",
-      display: "block"
+        console.log("Forgot validator initialized")
+const forgotValidation = new JustValidate("#forgot-form");
+
+forgotValidation
+  .addField("#forgot_role", [
+    {
+      rule: 'required',
+      errorMessage: "Please select your account type"
+    }
+  ])
+  .addField("#forgot_email", [
+    {
+      rule: 'required',
+      errorMessage: "Email is required"
     },
-    focusInvalidField: true,
-    lockForm: true
-  });
+    {
+      rule: 'email',
+      errorMessage: "Invalid email format"
+    },
+    {
+      rule: 'function',
+      validator: (value) => {
+        const roleElement = document.querySelector("#forgot_role");
+        const role = roleElement?.value?.trim().toLowerCase();
+        const email = value.trim().toLowerCase();
 
-  forgotValidation
-    .addField("#forgot_role", [
-      {
-        rule: 'required',
-        errorMessage: "Please select your account type"
-      }
-    ])
-    .addField("#forgot_email", [
-      {
-        rule: 'required',
-        errorMessage: "Email is required"
+        if (role === "student" || role === "faculty") {
+          return email.endsWith("@phinmaed.com");
+        } else if (role === "admin") {
+          return true;
+        }
+        return false;
       },
-      {
-        rule: 'email',
-        errorMessage: "Invalid email format"
-      },
-      {
-        rule: 'function',
-        validator: (value) => {
-          return value.trim().toLowerCase().endsWith('@phinmaed.com');
-        },
-        errorMessage: "Only @phinmaed.com emails are allowed"
-      }
-    ])
-    .onSuccess((event) => {
-      const formData = new FormData(event.target);
+      errorMessage: "Students and Faculty must use @phinmaed.com accounts only."
+    }
+  ])
+  .onSuccess((event) => {
+    const formData = new FormData(event.target);
 
-      return fetch('/assets/server/request-reset.php', {
-        method: 'POST',
-        body: formData
-      })
-      .then(res => res.text())
-      .then(response => {
-        // Replace form with server response (HTML confirmation screen)
-        const form = document.getElementById("forgot-form");
-        form.innerHTML = response;
-      })
-      .catch((err) => {
-        console.error("Forgot password fetch error:", err);
-        showError("Something went wrong, please try again.", "#forgot-form");
-      });
+    fetch('/assets/server/request-reset.php', {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => res.text())
+    .then(data => {
+      const isError = data.toLowerCase().includes('not found') || 
+                      data.toLowerCase().includes('error') || 
+                      data.toLowerCase().includes('invalid') || 
+                      data.toLowerCase().includes('account not found');
+
+      if (isError) {
+        showError("Account not found or invalid details. Please check and try again.", "#forgot-form");
+      } else {
+        document.getElementById("forgot-form").innerHTML = data;
+      }
+    })
+    .catch((err) => {
+      console.error("Forgot password fetch error:", err);
+      showError("Something went wrong, please try again.", "#forgot-form");
     });
+  });
 });
 
 

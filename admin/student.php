@@ -1,11 +1,12 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) {
-  header("Location: index.php");
+
+if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != 1) {
+  header("Location: /../home.php");
   exit();
 }
 
-require_once "../assets/config/dbconfig.php";
+require __DIR__ . "/../assets/config/dbconfig.php";
 ?>
 
 <!DOCTYPE html>
@@ -15,6 +16,7 @@ require_once "../assets/config/dbconfig.php";
   <title>U-Plug | Student Users</title>
   <link rel="stylesheet" href="/assets/css/admin-dashboard.css">
   <link rel="stylesheet" href="/assets/css/student.css">
+  <link rel="icon" href="/assets/images/client/UplugLogo.png" type="image/png">
 </head>
 
 <body>
@@ -30,7 +32,7 @@ require_once "../assets/config/dbconfig.php";
         <li><a href="posts.php" class="nav-link">Posts</a></li>
         <li class="divider">Settings</li>
         <li><a href="#" class="nav-link">About</a></li>
-        <li><a href="assets/server/logout-process.php" class="nav-link">Logout</a></li>
+        <li><a href="/assets/server/logout-process.php" class="nav-link">Logout</a></li>
       </ul>
     </aside>
 
@@ -81,8 +83,11 @@ require_once "../assets/config/dbconfig.php";
                 $email = htmlspecialchars($stu['email']);
                 $name = htmlspecialchars($stu['full_name']);
                 $deptName = htmlspecialchars($stu['department']);
-                $status = "Active";
                 $seq_id = $stu['seq_id'];
+
+                $profilePic = !empty($stu['profile_picture'])
+                  ? "../../" . htmlspecialchars($stu['profile_picture'])
+                  : '/assets/images/client/default/profile.png';
                 echo "
                 <li data-id='{$seq_id}'>
                   <div>{$name}</div>
@@ -91,7 +96,7 @@ require_once "../assets/config/dbconfig.php";
                             data-name='{$name}'
                             data-dept='{$deptName}'
                             data-email='{$email}'
-                            data-status='{$status}'>
+                            data-profile='{$profilePic}'>
                       View
                     </button>
                     <button class='delete-btn' data-id='{$seq_id}'>Delete</button>
@@ -117,11 +122,13 @@ require_once "../assets/config/dbconfig.php";
       <span class="close-btn" id="closeViewModal">&times;</span>
       <h2>Student Information</h2>
       <div class="modal-body">
-        <p><strong>Name:</strong> <span id="studentName"></span></p>
-        <p><strong>Department:</strong> <span id="studentDept"></span></p>
-        <p><strong>Email:</strong> <span id="studentEmail"></span></p>
-        <p><strong>Status:</strong> <span id="studentStatus"></span></p>
+      <div class="profile-section">
+        <img id="studentProfilePic" src="/assets/images/default-profile.png" alt="Profile Picture" class="profile-pic">
       </div>
+      <p><strong>Name:</strong> <span id="studentName"></span></p>
+      <p><strong>Department:</strong> <span id="studentDept"></span></p>
+      <p><strong>Email:</strong> <span id="studentEmail"></span></p>
+    </div>
     </div>
   </div>
 
@@ -201,7 +208,9 @@ require_once "../assets/config/dbconfig.php";
           document.getElementById("studentName").textContent = btn.dataset.name;
           document.getElementById("studentDept").textContent = btn.dataset.dept;
           document.getElementById("studentEmail").textContent = btn.dataset.email;
-          document.getElementById("studentStatus").textContent = btn.dataset.status;
+
+          const profilePicEl = document.getElementById("studentProfilePic");
+          if (profilePicEl) profilePicEl.src = btn.dataset.profile || "/assets/images/default-profile.png";
           viewModal.style.display = "flex";
         });
       });

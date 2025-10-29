@@ -1,6 +1,19 @@
 <?php
 session_start();
 
+if (isset($_SESSION['user_id'])) {
+  // Redirect admin to admin dashboard
+  if ($_SESSION['user_id'] == 1) {
+    header("Location: /admin/admin.php");
+    exit();
+  }
+
+  require __DIR__ . "/assets/config/dbconfig.php";
+} else {
+  header("Location: index.php");
+  exit();
+}
+
 $toastPosts = $toastPosts ?? [];
 
 if (!empty($_SESSION['toastPosts'])) {
@@ -180,7 +193,39 @@ while ($post = $result->fetch_assoc()){
       <h2>Profile</h2>
       <p><strong>Account Number:</strong><br> <?= htmlspecialchars($session_id) ?></p>
       <p><strong>Name:</strong><br> <?= htmlspecialchars($user['full_name']) ?></p>
-      <p><strong>Department:</strong><br> <?= htmlspecialchars($department_code) ?></p>
+      <?php switch ($department_code) {
+            case "SHS":
+              $department_full = "Senior High School - (SHS)";
+              break;
+            case "CITE":
+              $department_full = "College of Information Technology Education - (CITE)";
+              break;
+            case "CCJE":
+              $department_full = "College of Criminal Justice Education - (CCJE)";
+              break;
+            case "CAHS":
+              $department_full = "College of Allied Health Sciences - (CAHS)";
+              break;
+            case "CAS":
+              $department_full = "College of Arts and Sciences - (CAS)";
+              break;
+            case "CEA":
+              $department_full = "College of Engineering and Architecture - (CEA)";
+              break;
+            case "CELA":
+              $department_full = "College of Education and Liberal Arts - (CELA)";
+              break;
+            case "CMA":
+              $department_full = "College of Management and Accountancy - (CMA)";
+              break;
+            case "COL":
+              $department_full = "College of Law - (COL)";
+              break;
+            default:
+              $department_full = "Unknown Department";
+              break;
+      }?>
+      <p><strong>Department:</strong><br> <?= htmlspecialchars($department_full) ?></p>
       <p><strong>Role:</strong><br> <?= htmlspecialchars($role) ?></p>
 
       <label for="profile_pic">📷 Upload Profile Photo:</label>

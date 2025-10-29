@@ -1,11 +1,12 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) {
-  header("Location: index.php");
+
+if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != 1) {
+  header("Location: /../home.php");
   exit();
 }
 
-require_once "../assets/config/dbconfig.php";
+require __DIR__ . "/../assets/config/dbconfig.php";
 ?>
 
 <!DOCTYPE html>
@@ -15,6 +16,7 @@ require_once "../assets/config/dbconfig.php";
   <title>U-Plug | Faculty Users</title>
   <link rel="stylesheet" href="/assets/css/admin-dashboard.css">
   <link rel="stylesheet" href="/assets/css/faculty.css">
+  <link rel="icon" href="/assets/images/client/UplugLogo.png" type="image/png">
 </head>
 
 <body>
@@ -30,7 +32,7 @@ require_once "../assets/config/dbconfig.php";
         <li><a href="posts.php" class="nav-link">Posts</a></li>
         <li class="divider">Settings</li>
         <li><a href="#" class="nav-link">About</a></li>
-        <li><a href="assets/server/logout-process.php" class="nav-link">Logout</a></li>
+        <li><a href="/assets/server/logout-process.php" class="nav-link">Logout</a></li>
       </ul>
     </aside>
 

@@ -2,12 +2,17 @@
 
 session_start();
 
-if (isset($_SESSION['user_id'])){
-    
-  require __DIR__ . "/assets/config/dbconfig.php";
+if (isset($_SESSION['user_id'])) {
+  // Redirect admin to admin dashboard
+  if ($_SESSION['user_id'] == 1) {
+    header("Location: /admin/admin.php");
+    exit();
+  }
 
+  require __DIR__ . "/assets/config/dbconfig.php";
 } else {
   header("Location: index.php");
+  exit();
 }
 ?>
 
@@ -151,7 +156,7 @@ while ($row = $result->fetch_assoc()) {
 
           <?php foreach ($officialFacultyPosts as $post): ?>
               <div class="news-item" data-post-id="<?= $post['post_id'] ?>">
-            <img src="https://via.placeholder.com/60" alt="placeholder">
+            <img src="/assets/images/client/department/<?= htmlspecialchars($departmentCode) ?>.png" alt="<?= htmlspecialchars($departmentCode) ?> Logo">
             <div>
               <h3><?= htmlspecialchars($post['authorName']) . " - " . htmlspecialchars($post['authorDept'])?></h3>
               <h3><?= htmlspecialchars($post['title']) ?></h3>
@@ -170,7 +175,7 @@ while ($row = $result->fetch_assoc()) {
 
           <?php foreach ($officialStudentPosts as $post): ?>
               <div class="news-item" data-post-id="<?= $post['post_id'] ?>">
-            <img src="https://via.placeholder.com/60" alt="placeholder">
+            <img src="/assets/images/client/department/<?= htmlspecialchars($departmentCode) ?>.png" alt="<?= htmlspecialchars($departmentCode) ?> Logo">
             <div>
               <h3><?= htmlspecialchars($post['authorName']) . " - " . htmlspecialchars($post['authorDept'])?></h3>
               <h3><?= htmlspecialchars($post['title']) ?></h3>

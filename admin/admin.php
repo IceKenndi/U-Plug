@@ -1,10 +1,14 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) {
-  header("Location: index.php");
+
+if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != 1) {
+  header("Location: /../home.php");
   exit();
 }
+
+require __DIR__ . "/../assets/config/dbconfig.php";
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,6 +16,7 @@ if (!isset($_SESSION['user_id'])) {
   <meta charset="UTF-8">
   <title>U-Plug Admin Dashboard</title>
   <link rel="stylesheet" href="/assets/css/admin-dashboard.css">
+  <link rel="icon" href="/assets/images/client/UplugLogo.png" type="image/png">
 </head>
 <body>
 
@@ -27,7 +32,7 @@ if (!isset($_SESSION['user_id'])) {
           <li><a href="posts.php" class="nav-link">Posts</a></li>
           <li class="divider">Settings</li>
           <li><a href="#" class="nav-link">About</a></li>
-          <li><a href="assets/server/logout-process.php" class="nav-link">Logout</a></li>
+          <li><a href="/assets/server/logout-process.php" class="nav-link">Logout</a></li>
         </ul>
     </aside>
     <!-- Burger Button -->
@@ -115,137 +120,89 @@ if (!isset($_SESSION['user_id'])) {
   </div>
 
   <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const burger = document.getElementById('burger');
-  const sidebar = document.getElementById('sidebar');
-
-  // ✅ Highlight active nav
-  const currentPage = window.location.pathname.split("/").pop() || "admin.html";
-  document.querySelectorAll(".nav-link").forEach(link => {
-    link.classList.toggle("active", link.getAttribute("href") === currentPage);
-  });
-
-  // ✅ Burger toggle
-  burger.addEventListener('click', () => sidebar.classList.toggle('hidden'));
-
-  // ✅ Hide sidebar on outside click
-  document.addEventListener('click', (e) => {
-    if (!sidebar.contains(e.target) && !burger.contains(e.target)) {
-      sidebar.classList.add('hidden');
-    }
-  });
-
-  // === Expand Buttons (+ / − and dropdown effect) ===
-  document.querySelectorAll('.expand-btn').forEach(button => {
-    button.addEventListener('click', () => {
-      const targetId = button.getAttribute('data-target');
-      const panel = document.getElementById(`${targetId}-panel`);
-      panel.classList.toggle('expanded');
-      button.classList.toggle('expanded');
-      button.textContent = button.classList.contains('expanded') ? '−' : '＋';
+    document.addEventListener('DOMContentLoaded', function () {
+      const burger = document.getElementById('burger');
+      const sidebar = document.getElementById('sidebar');
+    
+      // Highlight active nav
+      const currentPage = window.location.pathname.split("/").pop() || "admin.html";
+      document.querySelectorAll(".nav-link").forEach(link => {
+        link.classList.toggle("active", link.getAttribute("href") === currentPage);
+      });
+    
+      burger.addEventListener('click', () => sidebar.classList.toggle('hidden'));
+    
+      // Expand buttons
+      document.querySelectorAll('.expand-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          const targetId = button.getAttribute('data-target');
+          const panel = document.getElementById(`${targetId}-panel`);
+          panel.classList.toggle('expanded');
+          button.classList.toggle('expanded');
+          button.textContent = button.classList.contains('expanded') ? '−' : '＋';
+        });
+      });
+    
+      // === Fetch Live Data from Server (replace sample data) ===
+      fetch("./admin-dashboard-data.php")
+        .then(res => {
+          if (!res.ok) throw new Error("Network response was not ok");
+          return res.json();
+        })
+        .then(data => {
+          const recentPosts = data.posts || [];
+          const newUsers = data.users || [];
+        
+          // Update counters
+          document.getElementById("post-count").textContent = recentPosts.length;
+          document.getElementById("user-count").textContent = newUsers.length;
+        
+          // Populate posts
+          const postList = document.getElementById("recent-posts");
+          postList.innerHTML = "";
+          recentPosts.forEach(post => {
+            const li = document.createElement("li");
+            // adjust fields to match what your PHP returned (department, author_id, created_at, etc.)
+            const department = post.department || "";
+            const author = post.author_id || "";
+            const title = post.title || "";
+            const contentPreview = (post.content || "").substring(0, 80);
+            const createdAt = post.created_at || post.create_date || "";
+            li.innerHTML = `
+              <div>|${department}| ${author} | ${title} | ${contentPreview}... | ${createdAt}</div>
+              <div class="actions">
+                <button class="edit-btn">View</button>
+                <button class="delete-btn">Delete</button>
+              </div>`;
+            postList.appendChild(li);
+          });
+        
+          // Populate users
+          const userList = document.getElementById("new-users");
+          userList.innerHTML = "";
+          newUsers.forEach(user => {
+            const li = document.createElement("li");
+            const name = user.name || "";
+            const email = user.email || "";
+            const joined = user.joined_at || "";
+            li.innerHTML = `
+              <div>${name} | ${email} | ${joined}</div>
+              <div class="actions">
+                <button class="edit-btn">View</button>
+                <button class="delete-btn">Delete</button>
+              </div>`;
+            userList.appendChild(li);
+          });
+        })
+        .catch(err => {
+          console.error("Error loading dashboard data:", err);
+          // Optionally show an error to admin UI
+        });
+      
+      // === Modal Logic (keep as-is) ===
+      // ... (the rest of your modal logic)
     });
-  });
+    </script>
 
-  // === Sample Data ===
-  const recentPosts = [
-    { dep: "Computer Science", author: "Isabella Christensen", title: "Introduction to AI", content: "Lorem ipsum dolor sit amet...", created_at: "2025-10-22 12:56" },
-    { dep: "Engineering", author: "Audry Ford", title: "Sustainable Energy Solutions", content: "Consectetur adipiscing elit...", created_at: "2025-10-22 12:50" },
-    { dep: "Business", author: "Kara Obrien", title: "Market Trends 2025", content: "Sed do eiusmod tempor incididunt...", created_at: "2025-10-22 12:45" }
-  ];
-
-  const newUsers = [
-    { name: "Jane Doe", email: "jane@email.com", joined_at: "2025-10-22" },
-    { name: "John Smith", email: "john@email.com", joined_at: "2025-10-22" },
-    { name: "Emily Cruz", email: "emily@email.com", joined_at: "2025-10-22" }
-  ];
-
-  document.getElementById("post-count").textContent = recentPosts.length;
-  document.getElementById("user-count").textContent = newUsers.length;
-
-  const postList = document.getElementById("recent-posts");
-  recentPosts.forEach(post => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <div>|${post.dep}| ${post.author} | ${post.title} | ${post.content.substring(0, 50)}... | ${post.created_at}</div>
-      <div class="actions">
-        <button class="edit-btn">View</button>
-        <button class="delete-btn">Delete</button>
-      </div>`;
-    postList.appendChild(li);
-  });
-
-  const userList = document.getElementById("new-users");
-  newUsers.forEach(user => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <div>${user.name} | ${user.email} | ${user.joined_at}</div>
-      <div class="actions">
-        <button class="edit-btn">View</button>
-        <button class="delete-btn">Delete</button>
-      </div>`;
-    userList.appendChild(li);
-  });
-
-  // === Modal Logic ===
-  let currentDeleteElement = null;
-
-  document.querySelectorAll('.edit-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const li = btn.closest('li');
-      const isPost = li.parentElement.id === 'recent-posts';
-      if (isPost) {
-        const modal = document.getElementById('edit-modal');
-        const authorInput = document.getElementById('edit-author');
-        const contentInput = document.getElementById('edit-content');
-        const dateInput = document.getElementById('edit-date');
-        const parts = li.querySelector('div').textContent.split('|').map(p => p.trim());
-        authorInput.value = parts[2];
-        contentInput.value = parts[4].replace('...', '');
-        dateInput.value = parts[5];
-        authorInput.readOnly = true;
-        contentInput.readOnly = true;
-        dateInput.readOnly = true;
-        document.getElementById('save-edit').style.display = 'none';
-        modal.style.display = 'flex';
-      } else {
-        const modal = document.getElementById('view-user-modal');
-        const parts = li.querySelector('div').textContent.split('|').map(p => p.trim());
-        document.getElementById('view-user-name').textContent = parts[0];
-        document.getElementById('view-user-email').textContent = parts[1];
-        document.getElementById('view-user-date').textContent = parts[2];
-        modal.style.display = 'flex';
-      }
-    });
-  });
-
-  document.querySelectorAll('.delete-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      currentDeleteElement = btn.closest('li');
-      document.getElementById('delete-modal').style.display = 'flex';
-    });
-  });
-
-  document.getElementById('confirm-delete').addEventListener('click', () => {
-    if (currentDeleteElement) currentDeleteElement.remove();
-    document.getElementById('delete-modal').style.display = 'none';
-  });
-
-  document.getElementById('cancel-delete').addEventListener('click', () => {
-    document.getElementById('delete-modal').style.display = 'none';
-  });
-
-  document.querySelectorAll('.close-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.modal').forEach(m => (m.style.display = 'none'));
-    });
-  });
-
-  window.addEventListener('click', (e) => {
-    document.querySelectorAll('.modal').forEach(m => {
-      if (e.target === m) m.style.display = 'none';
-    });
-  });
-});
-  </script>
 </body>
 </html>

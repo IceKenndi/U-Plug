@@ -2,13 +2,19 @@
 
 session_start();
 
-if (isset($_SESSION['user_id'])){
-    
-  require __DIR__ . "/assets/config/dbconfig.php";
+if (isset($_SESSION['user_id'])) {
+  // Redirect admin to admin dashboard
+  if ($_SESSION['user_id'] == 1) {
+    header("Location: /admin/admin.php");
+    exit();
+  }
 
+  require __DIR__ . "/assets/config/dbconfig.php";
 } else {
   header("Location: index.php");
+  exit();
 }
+
 
 // PUSH NOTIF
 
@@ -72,7 +78,7 @@ while ($row = $result->fetch_assoc()) {
     </div>
   </nav>
 
-  <main class="map-main">
+<main class="map-main">
   <section class="map-controls">
     <h2>Campus Map</h2>
     <label for="building-select">Choose a building:</label>
@@ -105,6 +111,7 @@ while ($row = $result->fetch_assoc()) {
 <div id="imageModal" class="modal">
   <span class="close">&times;</span>
   <img class="modal-content" id="modalImage">
+  <div id="modalDescription" class="modal-description"></div>  <!-- New div for building info -->
 </div>
 
 <!-- FOR JS -->
@@ -119,7 +126,7 @@ const buildingData = {
     ]
   },
   "riverside-building": {
-    description: "Riverside Building: Classrooms and offices.",
+    description: "Riverside Building: Classrooms and offices. building that houses nursing students, called cahs building/ Riverside, has elevators and a food court in the middle.",
     images: [
       "assets/images/buildings/rs2.jpg",
       "assets/images/buildings/rs1.jpg",
@@ -127,7 +134,8 @@ const buildingData = {
     ]
   },
   "mba": {
-    description: "MBA: Engineering building.",
+    description: "MBA: Engineering building. Engr/Archi Building, contains the chapel which holds the human resources department, this building has 4 floors.",
+
     images: [
       "assets/images/buildings/mba.jpg",
       "assets/images/buildings/mba1.jpg",
@@ -135,7 +143,7 @@ const buildingData = {
     ]
   },
   "north-hall": {
-    description: "North Hall: Academic classrooms.",
+    description: "North Hall: Academic classrooms All the students use this building, This building has 5 floors.",
     images: [
       "assets/images/buildings/nh.jpg",
       "assets/images/buildings/nh1.jpg",
@@ -151,7 +159,7 @@ const buildingData = {
     ]
   },
   "basic-ed": {
-    description: "Basic Ed: Basic Education Department.",
+    description: "Basic Ed: Basic Education Department Be - Senior Highschool department also the Senior Highschool Building. The building has 4 floors.",
     images: [
       "assets/images/buildings/BE.jpg",
       "assets/images/buildings/BE1.jpg",
@@ -159,7 +167,7 @@ const buildingData = {
     ]
   },
   "ptc": {
-    description: "PTC: Professional Training Center.",
+    description: "PTC: Professional Training Center.This building has 4 floors, containing the CITE Department, Maclab, Computer Lab Library.",
     images: [
       "assets/images/buildings/cite1.jpg",
       "assets/images/buildings/cite2.jpg",
@@ -167,7 +175,7 @@ const buildingData = {
     ]
   },
   "csdl-its": {
-    description: "CSDL ITS: Computer Science and IT Services.",
+    description: "CSDL ITS: Computer Science and IT Services.Houses the lost and found and financial support/ concerns about school requirements and others, It may also be referred to as the Help Center.",
     images: [
       "assets/images/buildings/csdl-its/image1.jpg",
       "assets/images/buildings/csdl-its/image2.jpg",
@@ -207,6 +215,7 @@ const buildingData = {
     ]
   }
 };
+
 
 let currentImageIndex = 0;
 let currentBuildingKey = '';

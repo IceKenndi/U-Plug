@@ -3,6 +3,11 @@
 session_start();
 
 if (isset($_SESSION['user_id'])){
+
+  if ($_SESSION['user_id'] == 1) {
+    header("Location: /admin/admin.php");
+    exit();
+  }
     
   require __DIR__ . "/assets/config/dbconfig.php";
 
@@ -204,7 +209,7 @@ while ($row = $result->fetch_assoc()) {
       <h3>Edit Post</h3>
       <form id="editPostForm" method="POST" action="assets/server/edit-post.php" autocomplete="off" class="post-form">
         <input type="hidden" name="post_id" id="edit_post_id">
-        <input type="hidden" name="origin" value="profile">
+        <input type="hidden" name="origin" value="news">
         <input type="hidden" name="post_type" value="<?= $post['post_type'] ?>">
         
         <label for="edit_title">Title:</label>

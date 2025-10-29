@@ -1,6 +1,11 @@
 <?php
 session_start();
-require_once "../assets/config/dbconfig.php";
+if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != 1) {
+  header("Location: /../home.php");
+  exit();
+}
+
+require __DIR__ . "/../assets/config/dbconfig.php";
 
 // Arrays for each post category
 $facultyPosts = [];
@@ -74,7 +79,7 @@ $conn->close();
         <li><a href="posts.php" class="nav-link active">Posts</a></li>
         <li class="divider">Settings</li>
         <li><a href="#" class="nav-link">About</a></li>
-        <li><a href="assets/server/logout-process.php" class="nav-link">Logout</a></li>
+        <li><a href="/assets/server/logout-process.php" class="nav-link">Logout</a></li>
       </ul>
     </aside>
 
@@ -204,6 +209,9 @@ $conn->close();
         <p><strong>Title:</strong> <span id="viewTitle"></span></p>
         <p><strong>Content:</strong></p>
         <p id="viewContent" class="content-box"></p>
+                      
+        <p><strong>Created At:</strong> <span id="viewCreatedAt"></span></p>
+        <p id="editedAtWrapper" style="display:none;"><strong>Edited At:</strong> <span id="viewEditedAt"></span></p>
       </div>
     </div>
   </div>
@@ -216,9 +224,9 @@ $conn->close();
     <p>Are you sure you want to delete this post?</p>
 
     <!-- The working form (uses PHP backend logic) -->
-    <form id="deleteForm" method="POST" action="delete-posts.php">
+    <form id="deleteForm" method="POST" action="server/delete-posts.php">
       <input type="hidden" name="redirect_to" value="posts.php">
-      <input type="hidden" name="id" id="id">
+      <input type="hidden" name="id" id="delete_post_id">
 
       <div class="modal-actions">
         <button type="submit" id="confirm-delete" class="confirm-btn">Delete</button>
@@ -335,52 +343,51 @@ function closeDeleteModal() {
 
     // === VIEW POST ===
     document.addEventListener("click", e => {
-        if (e.target.classList.contains("view-btn")) {
-            const card = e.target.closest(".post-card");
-            document.getElementById("viewDept").textContent = card.querySelector(".dep").textContent;
-            document.getElementById("viewAuthor").textContent = card.querySelector(".name").textContent;
-            document.getElementById("viewTitle").textContent = card.querySelector(".title").textContent;
-            document.getElementById("viewContent").textContent = card.querySelector(".text").textContent;
+      if (e.target.classList.contains("view-btn")) {
+        const card = e.target.closest(".post-card");
+      
+        // Extract values already visible in the card
+        document.getElementById("viewDept").textContent = card.querySelector(".dep").textContent;
+        document.getElementById("viewAuthor").textContent = card.querySelector(".name").textContent;
+        document.getElementById("viewTitle").textContent = card.querySelector(".title").textContent;
+        document.getElementById("viewContent").textContent = card.querySelector(".text").textContent;
+      
+        // 🕒 Fetch additional data (creation + edited timestamps)
+        const postId = card.dataset.id;
+        fetch("/admin/server/get-post-details.php?id=" + encodeURIComponent(postId))
+          .then(res => res.json())
+          .then(data => {
+            document.getElementById("viewCreatedAt").textContent = data.create_date || "Unknown";
+          
+            if (data.edited_at) {
+              document.getElementById("editedAtWrapper").style.display = "block";
+              document.getElementById("viewEditedAt").textContent = data.edited_at;
+            } else {
+              document.getElementById("editedAtWrapper").style.display = "none";
+            }
+          
+            // Show modal
             document.getElementById("viewModal").style.display = "flex";
-        }
+          })
+          .catch(err => {
+            console.error("Error fetching post details:", err);
+            alert("Failed to load post details.");
+          });
+      }
     });
+
 
     // === DELETE POST (Modal-based only - removed conflicting confirm() handler) ===
     let postToDelete = null;
     document.addEventListener("click", e => {
-        if (e.target.classList.contains("delete-btn")) {
-            postToDelete = e.target.closest(".post-card");
-            document.getElementById("deleteModal").style.display = "flex";
-        }
-    });
-
-    document.getElementById("confirm-delete").addEventListener("click", () => {
-        if (!postToDelete) return;
-        const id = postToDelete.dataset.id;
-
-        fetch("delete_post.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "id=" + encodeURIComponent(id)  // Note: Changed to "id" to match your original; adjust if your PHP expects "post_id"
-        })
-        .then(res => res.text())
-        .then(response => {
-            if (response.trim() === "success") {
-                postToDelete.remove();
-                alert("Post deleted successfully!");
-            } else {
-                alert("Failed to delete post: " + response);
-            }
-            document.getElementById("deleteModal").style.display = "none";
-        })
-        .catch(err => {
-            alert("Error deleting post.");
-            console.error(err);
-        });
-    });
-
-    document.getElementById("cancel-delete").addEventListener("click", () => {
-        document.getElementById("deleteModal").style.display = "none";
+      if (e.target.classList.contains("delete-btn")) {
+        const postCard = e.target.closest(".post-card");
+        const postId = postCard.dataset.id; // e.g. <div class="post-card" data-id="123">
+        postToDelete = postCard;
+      
+        document.getElementById("delete_post_id").value = postId;
+        document.getElementById("deleteModal").style.display = "flex";
+      }
     });
 
     // Close modals

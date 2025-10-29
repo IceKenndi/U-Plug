@@ -11,9 +11,11 @@ if (!$token) {
 
 $sql = "SELECT student_id AS id, 'student' AS role, reset_expiry FROM student_users WHERE reset_token = ?
         UNION
-        SELECT faculty_id AS id, 'faculty' AS role, reset_expiry FROM faculty_users WHERE reset_token = ?";
+        SELECT faculty_id AS id, 'faculty' AS role, reset_expiry FROM faculty_users WHERE reset_token = ?
+        UNION
+        SELECT admin_id AS id, 'admin' AS role, reset_expiry FROM admin_users WHERE reset_token = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("ss", $token, $token);
+$stmt->bind_param("sss", $token, $token, $token);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
